@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command};
@@ -8,6 +9,9 @@ use tauri::{AppHandle, Manager, State};
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
+
+// Include the generated embedded sidecars table from build.rs
+include!(concat!(env!("OUT_DIR"), "/embedded_sidecars.rs"));
 
 // Flag to hide terminal console window on Windows
 #[cfg(windows)]
@@ -24,12 +28,64 @@ pub struct SidecarStatus {
     pub message: String,
 }
 
+/// Automatically extracts embedded sidecar binary to AppLocalData if present in EMBEDDED_SIDECARS
+pub fn ensure_embedded_sidecar_extracted(app_handle: &AppHandle, command: &str) -> Option<PathBuf> {
+    let clean_name = Path::new(command)
+        .file_name()
+        .map(|f| f.to_string_lossy().to_string())
+        .unwrap_or_else(|| command.to_string());
+
+    // Search in EMBEDDED_SIDECARS
+    for (embedded_name, bytes) in EMBEDDED_SIDECARS {
+        let is_match = *embedded_name == clean_name
+            || *embedded_name == format!("{}.exe", clean_name)
+            || format!("{}.exe", *embedded_name) == clean_name;
+
+        if is_match {
+            if let Ok(local_data) = app_handle.path().app_local_data_dir() {
+                let target_dir = local_data.join("bin");
+                let _ = fs::create_dir_all(&target_dir);
+                let target_path = target_dir.join(embedded_name);
+
+                // Write file if not exists or if size differs
+                let should_write = match fs::metadata(&target_path) {
+                    Ok(meta) => meta.len() != bytes.len() as u64,
+                    Err(_) => true,
+                };
+
+                if should_write {
+                    if let Err(e) = fs::write(&target_path, bytes) {
+                        eprintln!(
+                            "Failed to extract embedded sidecar '{}': {}",
+                            target_path.display(),
+                            e
+                        );
+                    } else {
+                        println!(
+                            "Successfully extracted embedded sidecar '{}' to '{}'",
+                            embedded_name,
+                            target_path.display()
+                        );
+                    }
+                }
+
+                if target_path.exists() {
+                    return Some(target_path);
+                }
+            }
+        }
+    }
+
+    None
+}
+
 /// Helper function to locate a binary across standard application search paths:
 /// 1. As an absolute or current directory path
-/// 2. Next to the main executable (current_exe dir)
-/// 3. In app_data_dir / app_local_data_dir (e.g. %APPDATA%/com.appName/bin/ or engines/)
-/// 4. In resource_dir (bundled sidecars)
-/// 5. In standard system PATH
+/// 2. Extracted from compiled-in EMBEDDED_SIDECARS into %LOCALAPPDATA%
+/// 3. Next to the main executable (current_exe dir)
+/// 4. In app_data_dir / app_local_data_dir (e.g. %APPDATA%/com.appName/bin/ or engines/)
+/// 5. In resource_dir (bundled sidecars)
+/// 6. In standard system PATH
 pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
     let raw_path = Path::new(command);
     if raw_path.is_absolute() && raw_path.exists() {
@@ -41,7 +97,12 @@ pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
         return raw_path.to_path_buf();
     }
 
-    // 2. Check next to running executable (ideal for portable .exe & sidecars in same folder or subfolder)
+    // 2. Check if it's an embedded binary compiled into the executable via include_bytes!
+    if let Some(extracted_path) = ensure_embedded_sidecar_extracted(app_handle, command) {
+        return extracted_path;
+    }
+
+    // 3. Check next to running executable (ideal for portable .exe & sidecars in same folder or subfolder)
     if let Ok(exe_path) = std::env::current_exe() {
         if let Some(exe_dir) = exe_path.parent() {
             let candidate = exe_dir.join(command);
@@ -59,7 +120,7 @@ pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
         }
     }
 
-    // 3. Check in AppLocalData / AppData (standard location for embedded / extracted binaries)
+    // 4. Check in AppLocalData / AppData (standard location for embedded / extracted binaries)
     if let Ok(app_local_data) = app_handle.path().app_local_data_dir() {
         let candidate = app_local_data.join(command);
         if candidate.exists() {
@@ -75,7 +136,7 @@ pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
         }
     }
 
-    // 4. Check in AppData (Roaming)
+    // 5. Check in AppData (Roaming)
     if let Ok(app_data) = app_handle.path().app_data_dir() {
         let candidate = app_data.join(command);
         if candidate.exists() {
@@ -87,7 +148,7 @@ pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
         }
     }
 
-    // 5. Check in bundled resource dir
+    // 6. Check in bundled resource dir
     if let Ok(resource_dir) = app_handle.path().resource_dir() {
         let candidate = resource_dir.join(command);
         if candidate.exists() {
@@ -101,6 +162,15 @@ pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
 
     // Default: return original string to let the OS PATH resolve it
     PathBuf::from(command)
+}
+
+/// Returns the list of binaries embedded into the executable
+#[tauri::command]
+pub fn list_embedded_sidecars() -> Result<Vec<String>, String> {
+    Ok(EMBEDDED_SIDECARS
+        .iter()
+        .map(|(name, _)| name.to_string())
+        .collect())
 }
 
 /// Returns the standard application directories for sidecars / data storage
@@ -154,7 +224,7 @@ pub fn check_port_available(port: u16) -> Result<bool, String> {
 
 /// Generic Sidecar starter: starts any external binary/executable
 /// Works for Python, Go, Node, C++ binaries
-/// Automatically resolves relative paths against exe_dir, AppData, and resource_dir.
+/// Automatically resolves relative paths against embedded binaries, exe_dir, AppData, and resource_dir.
 #[tauri::command]
 pub fn start_sidecar(
     app_handle: AppHandle,
@@ -184,7 +254,7 @@ pub fn start_sidecar(
         }
     }
 
-    // Resolve binary path across standard locations
+    // Resolve binary path across standard locations (including embedded extraction)
     let resolved_path = resolve_sidecar_path(&app_handle, &command);
 
     let mut cmd = Command::new(&resolved_path);

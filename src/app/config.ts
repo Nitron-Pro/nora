@@ -45,8 +45,8 @@ export interface AppConfig {
 export const APP_CONFIG: AppConfig = {
   appName: "Nora Base",
   appId: "com.nora.base",
-  version: "1.2.0",
-  coreVersion: "1.2.0",
+  version: "1.3.0",
+  coreVersion: "1.3.0",
   defaultLanguage: "en",
   defaultTheme: "dark",
   enableTray: true,

@@ -211,8 +211,9 @@ addTask("بررسی وضعیت اتصال ترازو", "hourly", "hardware");
 اگر نرم‌افزار شما به یک موتور کمکی جانبی (مثلاً اسکریپت پایتون، باینری هوش مصنوعی یا ورکر C++) نیاز دارد، **هرگز به کدهای Rust دست نزنید!** نورا سرویس استاندارد `SidecarService` را برای این منظور آماده کرده است.
 
 #### استراتژی‌های استقرار باینری (Deployment Strategies):
-1. **تک‌فایل بودن خروجی (Embedded Resources):**  
-   کافی است باینری‌ها یا اسکریپت‌های موتور کمکی خود را درون پوشه `src/app/assets/bin/` قرار دهید (مثلاً `src/app/assets/bin/trader.exe`). اسکریپت بیلد نورا به طور خودکار آن را در باندل اجرایی تعبیه می‌کند.
+1. **تک‌فایل مطلق و ادغام بایت‌ها درون باینری (Embedded Single-File Binary via `include_bytes!`):**  
+   کافی است فایل باینری موتور کمکی خود (مثلاً `engine.exe`، اسکریپت کامپایل‌شده پایتون یا ورکر C++) را درون پوشه `src/app/assets/bin/` قرار دهید (مثلاً `src/app/assets/bin/engine.exe`).
+   اسکریپت بیلد نورا (`scripts/sync-app-config.mjs` و `src-tauri/build.rs`) به صورت خودکار در زمان کامپایل، بایت‌های این باینری را از طریق ماکروی بومی `include_bytes!` مستقیماً درون کدهای ماشین تک‌فایل `.exe` نهایی ادغام و جاسازی می‌کند. هنگام اولین اجرای برنامه توسط کاربر، هسته نورا آن را به صورت خودکار، امن و نامرئی در `%LOCALAPPDATA%/<appId>/bin/` اکسترکت کرده و اجرا می‌نماید. بدین ترتیب نسخه پرتابل شما **۱۰۰٪ تک‌فایل مستقل و بدون نیاز به هیچ فایل یا پوشه جانبی در کنار فایل `.exe`** خواهد بود.
 2. **استقرار در کنار فایل اجرایی (Portable Exe Directory):**  
    می‌توانید باینری را در کنار فایل اصلی یا درون پوشه `engines/` یا `bin/` کنار فایل `.exe` بگذارید.
 3. **پوشه استاندارد AppData کاربر (%APPDATA% / %LOCALAPPDATA%):**  
@@ -221,25 +222,29 @@ addTask("بررسی وضعیت اتصال ترازو", "hourly", "hardware");
 ```typescript
 import { SidecarService } from "@/core/services/sidecar";
 
-// ۱. دریافت مسیرهای استاندارد (اختیاری)
+// ۱. لیست باینری‌های ادغام‌شده در بایت‌های فایل پرتابل (اختیاری)
+const embeddedList = await SidecarService.listEmbeddedSidecars();
+// خروجی مثلا: ["engine.exe"]
+
+// ۲. دریافت مسیرهای استاندارد (اختیاری)
 const dirs = await SidecarService.getSidecarDirectories();
 // dirs.exe_dir, dirs.app_local_data_dir, dirs.suggested_bin_dir
 
-// ۲. اجرای باینری جانبی در پس‌زمینه (مخفی، بدون پنجره سیاه کنسول و همراه با چک پورت)
-// نکته: نیازی به ارسال مسیر کامل نیست؛ نورا خودکار در پوشه جاری، کنار exe، ریسورس‌ها و AppData جستجو می‌کند:
+// ۳. اجرای باینری جانبی در پس‌زمینه (مخفی، بدون پنجره سیاه کنسول و همراه با چک پورت)
+// نکته: نیازی به ارسال مسیر کامل نیست؛ نورا اولویت اول را به باینری توکار (Embedded) می‌دهد و در صورت نیاز خودکار آن را استخراج و اجرا می‌کند:
 const status = await SidecarService.startSidecar({
   name: "python_engine",
-  command: "trader.exe", // یا "bin/trader.exe" یا اسکریپت پایتون
+  command: "engine.exe", // نام فایلی که در src/app/assets/bin/ گذاشته بودید
   args: ["--port", "5000"],
   checkPort: 5000,   // اطمینان از آزاد بودن پورت قبل از استارت
 });
 
 console.log(status.message);
 
-// ۳. استعلام وضعیت زنده بودن پروسه
+// ۴. استعلام وضعیت زنده بودن پروسه
 const state = await SidecarService.getStatus("python_engine");
 
-// ۴. متوقف کردن دستی پروسه
+// ۵. متوقف کردن دستی پروسه
 await SidecarService.stopSidecar("python_engine");
 ```
 > **نکته ایمنی:** تمام پراسس‌های استارت‌شده با این سرویس، هنگام بسته شدن برنامه نورا به طور خودکار توسط هسته بسته و Kill می‌شوند (`Lifecycle Cleanup`).

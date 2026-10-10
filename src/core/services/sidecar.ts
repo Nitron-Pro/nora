@@ -115,4 +115,16 @@ export const SidecarService = {
       return {};
     }
   },
+
+  /**
+   * List of sidecar binaries embedded directly into the executable at compile-time
+   */
+  async listEmbeddedSidecars(): Promise<string[]> {
+    try {
+      return await invoke<string[]>("list_embedded_sidecars");
+    } catch (e) {
+      console.warn("listEmbeddedSidecars fallback:", e);
+      return [];
+    }
+  },
 };

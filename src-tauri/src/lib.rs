@@ -4,7 +4,7 @@ use commands::serial::{list_serial_ports, send_serial_command};
 use commands::printer::{list_printers, print_raw_esc_pos};
 use commands::sidecar::{
     check_port_available, cleanup_all_sidecars, get_sidecar_directories, get_sidecar_status,
-    start_sidecar, stop_sidecar, SidecarManager,
+    list_embedded_sidecars, start_sidecar, stop_sidecar, SidecarManager,
 };
 use commands::system::{exit_app, get_system_info};
 use tauri::{
@@ -88,7 +88,8 @@ pub fn run() {
             start_sidecar,
             stop_sidecar,
             get_sidecar_status,
-            get_sidecar_directories
+            get_sidecar_directories,
+            list_embedded_sidecars
         ])
         .run(tauri::generate_context!())
         .expect("error while running nora desktop application");
