@@ -16,7 +16,11 @@ pub fn get_system_info() -> Result<SystemInfo, String> {
     })
 }
 
+use crate::commands::sidecar::{cleanup_all_sidecars, SidecarManager};
+use tauri::State;
+
 #[tauri::command]
-pub fn exit_app(app_handle: tauri::AppHandle) {
+pub fn exit_app(app_handle: tauri::AppHandle, sidecar_state: State<'_, SidecarManager>) {
+    cleanup_all_sidecars(&sidecar_state);
     app_handle.exit(0);
 }

@@ -2,6 +2,10 @@ mod commands;
 
 use commands::serial::{list_serial_ports, send_serial_command};
 use commands::printer::{list_printers, print_raw_esc_pos};
+use commands::sidecar::{
+    check_port_available, cleanup_all_sidecars, get_sidecar_status, start_sidecar, stop_sidecar,
+    SidecarManager,
+};
 use commands::system::{exit_app, get_system_info};
 use tauri::{
     menu::{Menu, MenuItem},
@@ -12,6 +16,7 @@ use tauri::{
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(SidecarManager::default())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
@@ -47,6 +52,8 @@ pub fn run() {
                         }
                     }
                     "quit" => {
+                        let state = app.state::<SidecarManager>();
+                        cleanup_all_sidecars(&state);
                         app.exit(0);
                     }
                     _ => {}
@@ -76,7 +83,11 @@ pub fn run() {
             list_printers,
             print_raw_esc_pos,
             get_system_info,
-            exit_app
+            exit_app,
+            check_port_available,
+            start_sidecar,
+            stop_sidecar,
+            get_sidecar_status
         ])
         .run(tauri::generate_context!())
         .expect("error while running nora desktop application");

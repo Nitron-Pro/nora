@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Nora",
+  "productName": "Nora Base",
   "version": "1.0.0",
   "identifier": "com.nora.base",
   "build": {
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Nora",
+        "title": "Nora Base",
         "width": 1100,
         "height": 720,
         "minWidth": 800,
@@ -37,5 +37,12 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "http://localhost:8080/updates/releases.json"
+      ]
+    }
   }
 }
