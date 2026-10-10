@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::TcpListener;
+use std::path::{Path, PathBuf};
 use std::process::{Child, Command};
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
@@ -23,6 +24,125 @@ pub struct SidecarStatus {
     pub message: String,
 }
 
+/// Helper function to locate a binary across standard application search paths:
+/// 1. As an absolute or current directory path
+/// 2. Next to the main executable (current_exe dir)
+/// 3. In app_data_dir / app_local_data_dir (e.g. %APPDATA%/com.appName/bin/ or engines/)
+/// 4. In resource_dir (bundled sidecars)
+/// 5. In standard system PATH
+pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
+    let raw_path = Path::new(command);
+    if raw_path.is_absolute() && raw_path.exists() {
+        return raw_path.to_path_buf();
+    }
+
+    // 1. Check relative to current working directory
+    if raw_path.exists() {
+        return raw_path.to_path_buf();
+    }
+
+    // 2. Check next to running executable (ideal for portable .exe & sidecars in same folder or subfolder)
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            let candidate = exe_dir.join(command);
+            if candidate.exists() {
+                return candidate;
+            }
+            // Also try with .exe if omitted on Windows
+            #[cfg(windows)]
+            {
+                let with_exe = exe_dir.join(format!("{}.exe", command));
+                if with_exe.exists() {
+                    return with_exe;
+                }
+            }
+        }
+    }
+
+    // 3. Check in AppLocalData / AppData (standard location for embedded / extracted binaries)
+    if let Ok(app_local_data) = app_handle.path().app_local_data_dir() {
+        let candidate = app_local_data.join(command);
+        if candidate.exists() {
+            return candidate;
+        }
+        let candidate_bin = app_local_data.join("bin").join(command);
+        if candidate_bin.exists() {
+            return candidate_bin;
+        }
+        let candidate_engines = app_local_data.join("engines").join(command);
+        if candidate_engines.exists() {
+            return candidate_engines;
+        }
+    }
+
+    // 4. Check in AppData (Roaming)
+    if let Ok(app_data) = app_handle.path().app_data_dir() {
+        let candidate = app_data.join(command);
+        if candidate.exists() {
+            return candidate;
+        }
+        let candidate_bin = app_data.join("bin").join(command);
+        if candidate_bin.exists() {
+            return candidate_bin;
+        }
+    }
+
+    // 5. Check in bundled resource dir
+    if let Ok(resource_dir) = app_handle.path().resource_dir() {
+        let candidate = resource_dir.join(command);
+        if candidate.exists() {
+            return candidate;
+        }
+        let candidate_bin = resource_dir.join("bin").join(command);
+        if candidate_bin.exists() {
+            return candidate_bin;
+        }
+    }
+
+    // Default: return original string to let the OS PATH resolve it
+    PathBuf::from(command)
+}
+
+/// Returns the standard application directories for sidecars / data storage
+#[tauri::command]
+pub fn get_sidecar_directories(app_handle: AppHandle) -> Result<HashMap<String, String>, String> {
+    let mut dirs = HashMap::new();
+
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            dirs.insert("exe_dir".to_string(), exe_dir.to_string_lossy().to_string());
+        }
+    }
+
+    if let Ok(local_data) = app_handle.path().app_local_data_dir() {
+        dirs.insert(
+            "app_local_data_dir".to_string(),
+            local_data.to_string_lossy().to_string(),
+        );
+        let bin_dir = local_data.join("bin");
+        dirs.insert(
+            "suggested_bin_dir".to_string(),
+            bin_dir.to_string_lossy().to_string(),
+        );
+    }
+
+    if let Ok(data) = app_handle.path().app_data_dir() {
+        dirs.insert(
+            "app_data_dir".to_string(),
+            data.to_string_lossy().to_string(),
+        );
+    }
+
+    if let Ok(resource) = app_handle.path().resource_dir() {
+        dirs.insert(
+            "resource_dir".to_string(),
+            resource.to_string_lossy().to_string(),
+        );
+    }
+
+    Ok(dirs)
+}
+
 /// Check if a specific TCP port is free on localhost
 #[tauri::command]
 pub fn check_port_available(port: u16) -> Result<bool, String> {
@@ -34,8 +154,10 @@ pub fn check_port_available(port: u16) -> Result<bool, String> {
 
 /// Generic Sidecar starter: starts any external binary/executable
 /// Works for Python, Go, Node, C++ binaries
+/// Automatically resolves relative paths against exe_dir, AppData, and resource_dir.
 #[tauri::command]
 pub fn start_sidecar(
+    app_handle: AppHandle,
     name: String,
     command: String,
     args: Vec<String>,
@@ -62,11 +184,19 @@ pub fn start_sidecar(
         }
     }
 
-    let mut cmd = Command::new(&command);
+    // Resolve binary path across standard locations
+    let resolved_path = resolve_sidecar_path(&app_handle, &command);
+
+    let mut cmd = Command::new(&resolved_path);
     cmd.args(&args);
 
     if let Some(dir) = working_dir {
         cmd.current_dir(dir);
+    } else if let Some(parent) = resolved_path.parent() {
+        // Default working directory to the binary's directory if it exists on disk
+        if parent.exists() && parent.as_os_str().len() > 0 {
+            cmd.current_dir(parent);
+        }
     }
 
     // Hide console window on Windows
@@ -83,10 +213,18 @@ pub fn start_sidecar(
                 name,
                 running: true,
                 pid: Some(pid),
-                message: "Sidecar started successfully".to_string(),
+                message: format!(
+                    "Sidecar started successfully from: {}",
+                    resolved_path.display()
+                ),
             })
         }
-        Err(e) => Err(format!("Failed to start sidecar '{}': {}", command, e)),
+        Err(e) => Err(format!(
+            "Failed to start sidecar '{}' (resolved: '{}'): {}",
+            command,
+            resolved_path.display(),
+            e
+        )),
     }
 }
 

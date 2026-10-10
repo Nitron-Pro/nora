@@ -208,25 +208,38 @@ addTask("بررسی وضعیت اتصال ترازو", "hourly", "hardware");
 ---
 
 ### گام ۶: اجرای باینری‌ها و انجین‌های جانبی (Sidecars - Python / C++ / Go / Node)
-اگر نرم‌افزار شما به یک موتور کمکی جانبی (مثلاً اسکریپت پایتون، باینری هوش مصنوعی یا ورکر C++) نیاز دارد، **هرگز به کدهای Rust دست نزنید!** نورا سرویس استاندارد `SidecarService` را برای این منظور آماده کرده است:
+اگر نرم‌افزار شما به یک موتور کمکی جانبی (مثلاً اسکریپت پایتون، باینری هوش مصنوعی یا ورکر C++) نیاز دارد، **هرگز به کدهای Rust دست نزنید!** نورا سرویس استاندارد `SidecarService` را برای این منظور آماده کرده است.
+
+#### استراتژی‌های استقرار باینری (Deployment Strategies):
+1. **تک‌فایل بودن خروجی (Embedded Resources):**  
+   کافی است باینری‌ها یا اسکریپت‌های موتور کمکی خود را درون پوشه `src/app/assets/bin/` قرار دهید (مثلاً `src/app/assets/bin/trader.exe`). اسکریپت بیلد نورا به طور خودکار آن را در باندل اجرایی تعبیه می‌کند.
+2. **استقرار در کنار فایل اجرایی (Portable Exe Directory):**  
+   می‌توانید باینری را در کنار فایل اصلی یا درون پوشه `engines/` یا `bin/` کنار فایل `.exe` بگذارید.
+3. **پوشه استاندارد AppData کاربر (%APPDATA% / %LOCALAPPDATA%):**  
+   هسته نورا پوشه‌های استاندارد را به صورت خودکار سرچ می‌کند (`resolve_sidecar_path`). همچنین می‌توانید مسیر دقیق آن را با متد `SidecarService.getSidecarDirectories()` دریافت کنید.
 
 ```typescript
 import { SidecarService } from "@/core/services/sidecar";
 
-// ۱. اجرای باینری جانبی در پس‌زمینه (مخفی، بدون پنجره سیاه کنسول و همراه با چک پورت)
+// ۱. دریافت مسیرهای استاندارد (اختیاری)
+const dirs = await SidecarService.getSidecarDirectories();
+// dirs.exe_dir, dirs.app_local_data_dir, dirs.suggested_bin_dir
+
+// ۲. اجرای باینری جانبی در پس‌زمینه (مخفی، بدون پنجره سیاه کنسول و همراه با چک پورت)
+// نکته: نیازی به ارسال مسیر کامل نیست؛ نورا خودکار در پوشه جاری، کنار exe، ریسورس‌ها و AppData جستجو می‌کند:
 const status = await SidecarService.startSidecar({
   name: "python_engine",
-  command: "python", // یا مسیر فایل exe مثل "engines/trader.exe"
-  args: ["engine.py", "--port", "5000"],
+  command: "trader.exe", // یا "bin/trader.exe" یا اسکریپت پایتون
+  args: ["--port", "5000"],
   checkPort: 5000,   // اطمینان از آزاد بودن پورت قبل از استارت
 });
 
 console.log(status.message);
 
-// ۲. استعلام وضعیت زنده بودن پروسه
+// ۳. استعلام وضعیت زنده بودن پروسه
 const state = await SidecarService.getStatus("python_engine");
 
-// ۳. متوقف کردن دستی پروسه
+// ۴. متوقف کردن دستی پروسه
 await SidecarService.stopSidecar("python_engine");
 ```
 > **نکته ایمنی:** تمام پراسس‌های استارت‌شده با این سرویس، هنگام بسته شدن برنامه نورا به طور خودکار توسط هسته بسته و Kill می‌شوند (`Lifecycle Cleanup`).

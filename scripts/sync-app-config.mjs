@@ -18,7 +18,9 @@ const rootDir = path.resolve(__dirname, "..");
 const appConfigFile = path.join(rootDir, "src", "app", "config.ts");
 const tauriConfigFile = path.join(rootDir, "src-tauri", "tauri.conf.json");
 const customIconsDir = path.join(rootDir, "src", "app", "assets", "icons");
+const customBinDir = path.join(rootDir, "src", "app", "assets", "bin");
 const tauriIconsDir = path.join(rootDir, "src-tauri", "icons");
+const tauriBinDir = path.join(rootDir, "src-tauri", "bin");
 
 function extractValue(content, key) {
   const regex = new RegExp(`${key}:\\s*["']([^"']+)["']`);
@@ -75,6 +77,32 @@ function sync() {
         );
       }
       console.log(`[sync-app-config] Synced ${customFiles.length} custom icons from src/app/assets/icons/`);
+    }
+  }
+
+  // 4. Sync embedded sidecar binaries/resources if provided in src/app/assets/bin/
+  if (fs.existsSync(customBinDir)) {
+    const customBinFiles = fs.readdirSync(customBinDir);
+    if (customBinFiles.length > 0) {
+      if (!fs.existsSync(tauriBinDir)) {
+        fs.mkdirSync(tauriBinDir, { recursive: true });
+      }
+      for (const file of customBinFiles) {
+        fs.copyFileSync(
+          path.join(customBinDir, file),
+          path.join(tauriBinDir, file)
+        );
+      }
+      console.log(`[sync-app-config] Synced ${customBinFiles.length} sidecar binaries from src/app/assets/bin/`);
+
+      // Ensure bundle resources include bin/* so they are packaged into final executable/installer
+      if (!tauriConfig.bundle) tauriConfig.bundle = {};
+      if (!Array.isArray(tauriConfig.bundle.resources)) {
+        tauriConfig.bundle.resources = [];
+      }
+      if (!tauriConfig.bundle.resources.includes("bin/*")) {
+        tauriConfig.bundle.resources.push("bin/*");
+      }
     }
   }
 
