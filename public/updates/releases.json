@@ -1,18 +1,17 @@
 {
-  "version": "1.2.0",
-  "notes": "Added Generic Sidecar Service, dynamic config synchronizer, and child app custom icon support.",
-  "pub_date": "2026-10-10T18:00:00Z",
+  "version": "1.3.0",
+  "notes": "Added Embedded Sidecar support, multi-path discovery, and AppData directory resolution.",
+  "pub_date": "2026-10-10T20:00:00Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "",
-      "url": "http://localhost:1420/updates/nora_1.2.0_x64_en-US.msi.zip"
+      "url": "http://localhost:1420/updates/nora_1.3.0_x64_en-US.msi.zip"
     }
   },
   "changelog": [
-    "Generic Sidecar manager for background external binaries (Python, C++, Go, Node)",
-    "Port pre-flight verification before sidecar process startup",
-    "Automatic lifecycle process cleanup on app exit",
-    "Dynamic configuration synchronization via scripts/sync-app-config.mjs",
-    "Support for custom icons placed in src/app/assets/icons/"
+    "Embedded Sidecar execution inside single portable application binary",
+    "Smart path discovery across AppData, portable exe folder, and bundled resources",
+    "API to query standard application runtime directories (`getSidecarDirectories`)",
+    "Automatic resource bundling for binaries placed in src/app/assets/bin/"
   ]
 }

@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.2.0",
+    "date": "2026-10-10",
+    "title": "Nora Core v1.2.0 - Embedded Sidecar & Smart Multi-Path Discovery",
+    "highlights": [
+      "Supported Embedded Sidecars inside single portable application bundles (`src/app/assets/bin/`)",
+      "Added multi-path resolution (`resolve_sidecar_path`) across portable exe dir, AppData, and bundled resources",
+      "Added `get_sidecar_directories` for retrieving standard application data and bin directories",
+      "Automatic bundle resource inclusion in `sync-app-config.mjs` for embedded binaries",
+      "Enhanced sidecar process lifecycle management and graceful shutdown"
+    ]
+  },
+  {
     "version": "1.1.0",
     "date": "2026-10-10",
     "title": "Nora Core v1.1.0 - Sidecar Architecture & Dynamic Config",
