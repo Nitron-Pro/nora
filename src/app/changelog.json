@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.1.0",
+    "date": "2026-10-10",
+    "title": "Nora Core v1.1.0 - Sidecar Architecture & Dynamic Config",
+    "highlights": [
+      "Added Generic Sidecar Service for background engine execution (Python, C++, Go, Node)",
+      "Implemented automatic lifecycle cleanup: child processes killed on app termination",
+      "Added port conflict pre-flight check before sidecar startup",
+      "Created dynamic configuration synchronizer (`scripts/sync-app-config.mjs`)",
+      "Added support for custom child app icons in `src/app/assets/icons/`",
+      "Isolated dev and release simulation tools strictly to development mode (`DEV only`)"
+    ]
+  },
+  {
     "version": "1.0.0",
     "date": "2026-09-19",
     "title": "Initial Release of Nora Base",

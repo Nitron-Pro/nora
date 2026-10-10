@@ -1,18 +1,18 @@
 {
-  "version": "1.1.0",
-  "notes": "Added Smart Updater engine, automatic background downloads, daily checks, and enhanced UI components.",
-  "pub_date": "2026-09-19T14:00:00Z",
+  "version": "1.2.0",
+  "notes": "Added Generic Sidecar Service, dynamic config synchronizer, and child app custom icon support.",
+  "pub_date": "2026-10-10T18:00:00Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "",
-      "url": "http://localhost:1420/updates/nora_1.1.0_x64_en-US.msi.zip"
+      "url": "http://localhost:1420/updates/nora_1.2.0_x64_en-US.msi.zip"
     }
   },
   "changelog": [
-    "New In-App Updater with background download and manual confirmation modes",
-    "Daily automated check mechanism with persistence in local storage",
-    "Automatic What's New changelog popup after software restart",
-    "Complete EN/FA RTL multilingual UI engine with local storage caching",
-    "Enhanced 3-level sidebar navigation with quick filter search"
+    "Generic Sidecar manager for background external binaries (Python, C++, Go, Node)",
+    "Port pre-flight verification before sidecar process startup",
+    "Automatic lifecycle process cleanup on app exit",
+    "Dynamic configuration synchronization via scripts/sync-app-config.mjs",
+    "Support for custom icons placed in src/app/assets/icons/"
   ]
 }
