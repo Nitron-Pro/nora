@@ -187,7 +187,7 @@ export const Settings = () => {
                 </span>
                 <div className="flex items-center gap-2">
                   <Button
-                    onClick={() => simulateReleaseAvailable("1.3.0")}
+                    onClick={() => simulateReleaseAvailable()}
                     variant="outline"
                     size="sm"
                     className="gap-1.5 text-[11px] h-7"

@@ -55,17 +55,22 @@ git commit -m "feat: initial commit of POS app based on Nora boilerplate"
 ### گام ۱: تنظیم شناسنامه و منوی برنامه در `src/app/config.ts`
 فایل `src/app/config.ts` را باز کرده و اطلاعات برنامه خود را وارد کنید:
 
+> **قانون مهم برای ایجنت‌ها:**  
+> ۱. حتماً `updaterEndpoint` را به آدرس مانیفست اختصاصی سرور خودتان (مانند `https://your-domain.com/updates/releases.json`) تغییر دهید و از آدرس‌های لوکال تست استفاده نکنید.  
+> ۲. ابزار تست و شبیه‌سازی نسخه جدید در صفحه تنظیمات صرفاً در حالت توسعه (`DEV`) برای برنامه‌نویس فعال است و در خروجی نهایی کاربر (`production`) وجود ندارد؛ بنابراین نیازی به دستکاری کدهای UI نخواهید داشت.  
+> ۳. سیاست پرتابل مطلق نورا: داده‌ها و فایل‌ها را همواره در مسیر کنار فایل اجرایی ذخیره کنید و از ذخیره‌سازی داده‌های پراکنده در درایو C اجتناب نمایید.
+
 ```typescript
 export const APP_CONFIG: AppConfig = {
   appName: "فروشگاه و صندوق نورا (POS)", // نام نمایشی در تایتل‌بار، ترای و هدر
   appId: "com.nora.pos",                  // شناسه منحصر‌به‌فرد
   version: "1.0.0",                       // نسخه اختصاصی این برنامه
-  coreVersion: "1.0.0",                   // نسخه هسته نورا
+  coreVersion: "1.4.0",                   // نسخه هسته نورا
   defaultLanguage: "fa",                  // زبان پیش‌فرض ("fa" یا "en")
   defaultTheme: "dark",                   // تم پیش‌فرض ("dark" یا "light")
   enableTray: true,                       // فعال‌سازی آیکون ترای ویندوز
   enableUpdater: true,                    // فعال‌سازی موتور آپدیت خودکار
-  updaterEndpoint: "https://your-domain.com/updates/pos.json", // آدرس مانیفست آپدیت
+  updaterEndpoint: "https://your-domain.com/updates/releases.json", // آدرس مانیفست آپدیت اختصاصی اپلیکیشن شما
   about: {
     developer: "تیم نرم‌افزاری نورا",
     website: "https://your-domain.com",
@@ -210,14 +215,15 @@ addTask("بررسی وضعیت اتصال ترازو", "hourly", "hardware");
 ### گام ۶: اجرای باینری‌ها و انجین‌های جانبی (Sidecars - Python / C++ / Go / Node)
 اگر نرم‌افزار شما به یک موتور کمکی جانبی (مثلاً اسکریپت پایتون، باینری هوش مصنوعی یا ورکر C++) نیاز دارد، **هرگز به کدهای Rust دست نزنید!** نورا سرویس استاندارد `SidecarService` را برای این منظور آماده کرده است.
 
-#### استراتژی‌های استقرار باینری (Deployment Strategies):
-1. **تک‌فایل مطلق و ادغام بایت‌ها درون باینری (Embedded Single-File Binary via `include_bytes!`):**  
-   کافی است فایل باینری موتور کمکی خود (مثلاً `engine.exe`، اسکریپت کامپایل‌شده پایتون یا ورکر C++) را درون پوشه `src/app/assets/bin/` قرار دهید (مثلاً `src/app/assets/bin/engine.exe`).
-   اسکریپت بیلد نورا (`scripts/sync-app-config.mjs` و `src-tauri/build.rs`) به صورت خودکار در زمان کامپایل، بایت‌های این باینری را از طریق ماکروی بومی `include_bytes!` مستقیماً درون کدهای ماشین تک‌فایل `.exe` نهایی ادغام و جاسازی می‌کند. هنگام اولین اجرای برنامه توسط کاربر، هسته نورا آن را به صورت خودکار، امن و نامرئی در `%LOCALAPPDATA%/<appId>/bin/` اکسترکت کرده و اجرا می‌نماید. بدین ترتیب نسخه پرتابل شما **۱۰۰٪ تک‌فایل مستقل و بدون نیاز به هیچ فایل یا پوشه جانبی در کنار فایل `.exe`** خواهد بود.
-2. **استقرار در کنار فایل اجرایی (Portable Exe Directory):**  
-   می‌توانید باینری را در کنار فایل اصلی یا درون پوشه `engines/` یا `bin/` کنار فایل `.exe` بگذارید.
-3. **پوشه استاندارد AppData کاربر (%APPDATA% / %LOCALAPPDATA%):**  
-   هسته نورا پوشه‌های استاندارد را به صورت خودکار سرچ می‌کند (`resolve_sidecar_path`). همچنین می‌توانید مسیر دقیق آن را با متد `SidecarService.getSidecarDirectories()` دریافت کنید.
+#### استراتژی‌های استقرار باینری و ایزولاسیون کامل پرتابل (Portable-First):
+1. **تک‌فایل مطلق و بدون ردپا در ویندوز (Embedded Single-File via `include_bytes!`):**  
+   فایل باینری موتور کمکی خود (مثلاً `engine.exe`، اسکریپت کامپایل‌شده پایتون یا ورکر C++) را درون پوشه `src/app/assets/bin/` قرار دهید (مثلاً `src/app/assets/bin/engine.exe`).
+   اسکریپت بیلد نورا (`scripts/sync-app-config.mjs` و `src-tauri/build.rs`) به صورت خودکار در زمان کامپایل، بایت‌های این باینری را از طریق ماکروی بومی `include_bytes!` مستقیماً درون کدهای ماشین تک‌فایل `.exe` نهایی ادغام و جاسازی می‌کند.
+   **نکته معماری پرتابل نورا v1.4.0:** هنگام اجرای برنامه، هسته نورا با اولویت قطعی ابتدا فایل را در پوشه `bin/` **کنار خود فایل اجرایی اصلی برنامه (`current_exe().parent().join("bin")`)** استخراج می‌کند و هیچ فایلی به درایو ویندوز یا C ارسال نمی‌شود.
+2. **ارسال متغیر محیطی `PORTABLE_APP_DIR` و تنظیم Working Directory:**  
+   هنگام اجرای هر سایدکار توسط `start_sidecar`، هسته نورا متغیر محیطی `PORTABLE_APP_DIR` را با آدرس دقیق دایرکتوری اصلی برنامه پر کرده و Working Directory را به پوشه اصلی نرم‌افزار متصل می‌کند تا انجین پایتون یا C++ داده‌ها، دیتابیس و لاگ‌های خود را منحصراً در کنار فایل برنامه ذخیره کند و هرگز وابسته به درایو ویندوز یا Temp نشود.
+3. **استقرار مستقیم در کنار فایل اجرایی (Portable Exe Directory):**  
+   می‌توانید باینری را از قبل در کنار فایل اصلی یا درون پوشه `bin/` کنار فایل `.exe` بگذارید؛ نورا مستقیماً آن را شناسایی می‌کند.
 
 ```typescript
 import { SidecarService } from "@/core/services/sidecar";
@@ -226,12 +232,11 @@ import { SidecarService } from "@/core/services/sidecar";
 const embeddedList = await SidecarService.listEmbeddedSidecars();
 // خروجی مثلا: ["engine.exe"]
 
-// ۲. دریافت مسیرهای استاندارد (اختیاری)
+// ۲. دریافت مسیرهای استاندارد پرتابل و دایرکتوری برنامه
 const dirs = await SidecarService.getSidecarDirectories();
-// dirs.exe_dir, dirs.app_local_data_dir, dirs.suggested_bin_dir
+// dirs.exe_dir, dirs.portable_bin_dir, dirs.portable_data_dir
 
-// ۳. اجرای باینری جانبی در پس‌زمینه (مخفی، بدون پنجره سیاه کنسول و همراه با چک پورت)
-// نکته: نیازی به ارسال مسیر کامل نیست؛ نورا اولویت اول را به باینری توکار (Embedded) می‌دهد و در صورت نیاز خودکار آن را استخراج و اجرا می‌کند:
+// ۳. اجرای باینری جانبی در پس‌زمینه (مخفی، بدون کنسول، با Working Directory کنار exe و تزریق PORTABLE_APP_DIR)
 const status = await SidecarService.startSidecar({
   name: "python_engine",
   command: "engine.exe", // نام فایلی که در src/app/assets/bin/ گذاشته بودید
