@@ -1,5 +1,45 @@
 [
   {
+    "version": "1.6.0",
+    "date": "2026-10-12",
+    "title": "Nora Core v1.6.0 - Dev Tools Folder, Navy Theme & Midnight Palette",
+    "highlights": [
+      "Added gitignored `tools/` for local automation; agents must ship `tools/build-app.ps1` instead of running production `tauri build` unless the user explicitly asks",
+      "Dark theme recast as Dark Navy Slate for better contrast; new Midnight Black theme selectable in Settings",
+      "Docs-First Git rule: changelog, README, and affected docs must be updated before every core commit because child apps consume this repository"
+    ]
+  },
+  {
+    "version": "1.5.0",
+    "date": "2026-10-12",
+    "title": "Nora Core v1.5.0 - In-App Toasts, Process Monitor & Agent Guardrails",
+    "highlights": [
+      "Strict Core vs App agent rules: child apps must not edit `src/core/`, `src/components/ui/`, or `src-tauri/`",
+      "In-app toast, interactive confirm dialogs, and header notification bell with the last 10 messages",
+      "Live sidecar/cron monitor at `/tasks/processes` with `appId:` namespace isolation",
+      "Zero C-Drive Pollution: portable storage next to the executable only"
+    ]
+  },
+  {
+    "version": "1.4.0",
+    "date": "2026-10-11",
+    "title": "Nora Core v1.4.0 - Portable-First Storage & Zero C-Drive",
+    "highlights": [
+      "Embedded sidecars extract to `bin/` beside the running `.exe` instead of Windows drive C",
+      "Injected `PORTABLE_APP_DIR` and default working directory on the portable app root for all child processes",
+      "Per-app `updaterEndpoint` required; version-simulation tools stay DEV-only"
+    ]
+  },
+  {
+    "version": "1.3.0",
+    "date": "2026-10-10",
+    "title": "Nora Core v1.3.0 - Standalone Single-File Embedded Sidecars",
+    "highlights": [
+      "Binaries in `src/app/assets/bin/` are compiled into the main `.exe` via `include_bytes!`",
+      "First-run extraction is automatic and invisible; child apps can ship as a true single-file portable"
+    ]
+  },
+  {
     "version": "1.2.0",
     "date": "2026-10-10",
     "title": "Nora Core v1.2.0 - Embedded Sidecar & Smart Multi-Path Discovery",

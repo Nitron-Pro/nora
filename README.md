@@ -11,6 +11,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/TailwindCSS-v3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
   <img src="https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows" />
+  <img src="https://img.shields.io/badge/Version-1.6.0-0F172A?style=for-the-badge" alt="Version 1.6.0" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Independent-success?style=for-the-badge" alt="Offline-First" />
 </p>
 
@@ -43,7 +44,11 @@
   - لاگ‌گیری پایدار تاریخچه اجراها با فیلتر تاریخ و متریک‌های نرخ موفقیت.
 - 🌐 **پشتیبانی کامل دو زبانه (i18n):**
   - پیش‌فرض انگلیسی (LTR) و فارسی (RTL با فونت‌ها و استایل‌های بهینه‌سازی‌شده).
-- 🎨 **تم تیره و روشن (Dark / Light Theme):** مبتنی بر کلاس‌های Tailwind و پالت رنگی Shadcn با قابلیت پایداری در LocalStorage.
+- 🎨 **سه تم پایدار:** Dark Navy (سورمه‌ای تیره پیش‌فرض)، Midnight Black و Light — مبتنی بر کلاس‌های Tailwind و پالت Shadcn با ذخیره در LocalStorage.
+- 🔔 **Toast، Confirm و زنگوله نوتیفیکیشن:** پیام کوتاه، تایید عملیاتی، و تاریخچه ۱۰ اعلان آخر در هدر.
+- 🖥️ **مانیتور پروسس و سایدکار:** تب `/tasks/processes` با ایزولاسیون فضای نام `<appId>:`؛ هر اپ فقط پروسس خودش را می‌بیند.
+- 💾 **Portable-First / Zero C-Drive:** هیچ فایل، دیتابیس یا کشی روی درایو C نوشته نمی‌شود؛ همه چیز کنار `.exe`.
+- 🧰 **پوشه `tools/` (خارج از گیت):** اسکریپت‌های اتوماسیون محلی مثل `tools/build-app.ps1`. ایجنت بیلد پروداکشن را اجرا نمی‌کند مگر با دستور صریح کاربر.
 - 🧭 **منوی ۳ سطحی انطباقی هوشمند:**
   - سطح ۱: آیکون‌های درشت
   - سطح ۲: آیکون‌های ریز به همراه پنل کشویی و فیلد جستجوی زنده
@@ -57,14 +62,14 @@
 nora/
 ├── src/
 │   ├── core/                  # 🔒 زیرساخت غیرقابل تغییر هسته (Framework Engine)
-│   │   ├── components/        # تایتل‌بار، ترای، مدال‌های آپدیت، About و Changelog
-│   │   ├── services/          # رپرهای تایپ‌اسکریپت برای IPC (سخت‌افزار، سیستم، آپدیتر)
-│   │   ├── store/             # استورهای عمومی Zustand (تنظیمات، صف وظایف، آپدیتر)
+│   │   ├── components/        # تایتل‌بار، ترای، Toast، زنگوله، مدال‌های آپدیت و Changelog
+│   │   ├── services/          # رپرهای IPC (سخت‌افزار، سیستم، آپدیتر، سایدکار)
+│   │   ├── store/             # Zustand (تنظیمات، صف وظایف، نوتیفیکیشن، آپدیتر)
 │   │   └── i18n/              # دیکشنری و سیستم دوزبانه
 │   │
 │   ├── app/                   # 🚀 قلمرو اختصاصی هر نرم‌افزار جدید
 │   │   ├── config.ts          # شناسنامه اپ، نام، نسخه، آیکون‌ها و ساختار منوی ۳ سطحی
-│   │   ├── changelog.json     # لاگ تغییرات نسخه‌های مختلف این اپ
+│   │   ├── changelog.json     # لاگ تغییرات نسخه‌های مختلف این اپ (منبع مدال What's New)
 │   │   ├── pages/             # صفحات اختصاصی برنامه (داشبورد، فاکتورها، گزارش‌ها)
 │   │   └── components/        # کامپوننت‌های بیزینسی خاص اپلیکیشن
 │   │
@@ -72,9 +77,11 @@ nora/
 │
 ├── src-tauri/                 # 🦀 لایه بک‌اند قدرتمند Rust (Tauri 2.0)
 │   ├── capabilities/          # مجوزهای امنیتی پنجره‌ها، شل و نوتیفیکیشن
-│   └── src/commands/          # فرامین IPC سریال، پرینتر، سیستم و خروج امن
+│   └── src/commands/          # فرامین IPC سریال، پرینتر، سیستم، سایدکار و خروج امن
 │
-└── docs/                      # 📚 مستندات مرجع، معماری و راهنمای ساخت اپلیکیشن
+├── tools/                     # 🧰 اسکریپت‌های محلی توسعه (gitignore؛ مثلاً build-app.ps1)
+├── .cursor/rules/             # قوانین الزامی ایجنت‌ها (هسته، بیلد، Docs-First Git)
+└── docs/                      # 📚 مرجع حقیقت برای اپ‌های فرزند
 ```
 
 ---
@@ -106,13 +113,24 @@ npm run tauri dev
 
 ### تولید فایل‌های نصبی نهایی ویندوز (.exe / .msi)
 
+بیلد پروداکشن سنگین است. مسیر توصیه‌شده برای انسان/CI اسکریپت محلی است (پوشه `tools/` در گیت نیست):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/build-app.ps1
+```
+
+معادل دستی:
+
 ```bash
 npm run tauri build
 ```
+
 خروجی‌ها پس از کامپایل در مسیر زیر تولید می‌شوند:
 - `src-tauri/target/release/nora.exe` (فایل پرتابل)
-- `src-tauri/target/release/bundle/nsis/Nora_1.0.0_x64-setup.exe` (فایل نصبی ویزاردی)
-- `src-tauri/target/release/bundle/msi/Nora_1.0.0_x64_en-US.msi` (فایل نصبی سازمانی)
+- `src-tauri/target/release/bundle/nsis/Nora_1.6.0_x64-setup.exe` (فایل نصبی ویزاردی)
+- `src-tauri/target/release/bundle/msi/Nora_1.6.0_x64_en-US.msi` (فایل نصبی سازمانی)
+
+> ایجنت‌ها نباید `tauri build` را خودسرانه اجرا کنند مگر کاربر صریحاً دستور دهد.
 
 ---
 
@@ -128,7 +146,7 @@ export const APP_CONFIG: AppConfig = {
   version: "1.0.0",
   coreVersion: "1.0.0",
   defaultLanguage: "fa",
-  defaultTheme: "dark",
+  defaultTheme: "dark", // "dark" | "midnight" | "light"
   // ... منوهای ۳ سطحی و تنظیمات درباره ما
 };
 ```
@@ -152,7 +170,8 @@ npm run build
 
 ## 📚 مستندات پروژه
 
-برای جزئیات بیشتر، اسناد تخصصی موجود در پوشه `docs/` را بررسی فرمایید:
+اسناد `docs/` و قوانین `.cursor/rules/` مرجع حقیقت اپ‌های فرزند هستند و باید همیشه با هسته هم‌نسخه بمانند. قبل از هر کامیت مادر، چنج‌لاگ (`src/app/changelog.json`) و همین README هم به‌روز می‌شوند.
+
 - [`docs/HOW_TO_CREATE_APP.md`](docs/HOW_TO_CREATE_APP.md): راهنمای گام‌به‌گام تولید یک نرم‌افزار جدید.
 - [`docs/UPDATING_CORE.md`](docs/UPDATING_CORE.md): استراتژی و چک‌لیست همگام‌سازی هسته.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): تشریح فنی زیرساخت، IPC و تفکیک لایه‌ها.

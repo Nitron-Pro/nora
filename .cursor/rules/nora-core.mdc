@@ -48,6 +48,7 @@ alwaysApply: true
 - دستور مجاز برای آپدیت هسته طبق `docs/UPDATING_CORE.md`:
   `git checkout core/main -- src/core src/components/ui src-tauri .cursor docs scripts package.json`
 
-## ۸. حفظ پیوستگی و سوابق
-- قبل از هر کار عمده یا در پایان هر گام، فایل `docs/ROADMAP.md` را بررسی یا به‌روزرسانی کنید.
-- مستندات ریشه‌ای در `docs/ARCHITECTURE.md`، `docs/CONVENTIONS.md` و `docs/UPDATING_CORE.md` به عنوان مرجع حقیقت پروژه هستند.
+## ۸. حفظ پیوستگی، چنج‌لاگ و مستندات (Docs-First Git)
+- این مخزن **هسته مادر** است؛ اپ‌های فرزند از `docs/` و `.cursor/` همین ریپو تغذیه می‌شوند. مستندات کهنه ممنوع است.
+- **قبل از هر `git commit`:** حتماً `src/app/changelog.json`، `README.md`، `docs/ROADMAP.md` و هر سند اثرپذیر دیگر (`ARCHITECTURE.md`، `CONVENTIONS.md`، `HOW_TO_CREATE_APP.md`، `UPDATING_CORE.md`) هم‌تراز با همان تغییر به‌روز شوند. جزئیات در `.cursor/rules/nora-docs-git.mdc`.
+- کامیت بدون به‌روزرسانی چنج‌لاگ و README اکیداً ممنوع است.
