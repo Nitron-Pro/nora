@@ -4,7 +4,7 @@
     "date": "2026-10-12",
     "title": "Nora Core v1.6.0 - Dev Tools Folder, Navy Theme & Midnight Palette",
     "highlights": [
-      "Added gitignored `tools/` for local automation; agents must ship `tools/build-app.ps1` instead of running production `tauri build` unless the user explicitly asks",
+      "Added gitignored `tools/` with a double-click Windows launcher `tools/build-app.bat` (plus `build-app.ps1`); agents must not run production `tauri build` unless the user explicitly asks",
       "Dark theme recast as Dark Navy Slate for better contrast; new Midnight Black theme selectable in Settings",
       "Docs-First Git rule: changelog, README, and affected docs must be updated before every core commit because child apps consume this repository"
     ]

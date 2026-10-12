@@ -113,11 +113,13 @@ npm run tauri dev
 
 ### تولید فایل‌های نصبی نهایی ویندوز (.exe / .msi)
 
-بیلد پروداکشن سنگین است. مسیر توصیه‌شده برای انسان/CI اسکریپت محلی است (پوشه `tools/` در گیت نیست):
+بیلد پروداکشن سنگین است. مسیر توصیه‌شده دابل‌کلیک روی لانچر ویندوز است (پوشه `tools/` در گیت نیست):
 
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/build-app.ps1
+```bat
+tools\build-app.bat
 ```
+
+فقط فرانت‌اند: `tools\build-app.bat frontend` — بیلد دیباگ: `tools\build-app.bat debug`
 
 معادل دستی:
 
