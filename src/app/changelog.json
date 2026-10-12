@@ -6,6 +6,7 @@
     "highlights": [
       "Added gitignored `tools/` with a double-click Windows launcher `tools/build-app.bat` (plus `build-app.ps1`); agents must not run production `tauri build` unless the user explicitly asks",
       "Dark theme recast as Dark Navy Slate for better contrast; new Midnight Black theme selectable in Settings",
+      "Core checkout now includes `src/index.css` so child apps receive Navy/Midnight tokens; omitting it left stale palettes after core update",
       "Docs-First Git rule: changelog, README, and affected docs must be updated before every core commit because child apps consume this repository"
     ]
   },

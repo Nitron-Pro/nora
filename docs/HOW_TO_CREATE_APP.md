@@ -58,7 +58,8 @@ git commit -m "feat: initial commit of POS app based on Nora boilerplate"
 > **قانون مهم برای ایجنت‌ها:**  
 > ۱. حتماً `updaterEndpoint` را به آدرس مانیفست اختصاصی سرور خودتان (مانند `https://your-domain.com/updates/releases.json`) تغییر دهید و از آدرس‌های لوکال تست استفاده نکنید.  
 > ۲. ابزار تست و شبیه‌سازی نسخه جدید در صفحه تنظیمات صرفاً در حالت توسعه (`DEV`) برای برنامه‌نویس فعال است و در خروجی نهایی کاربر (`production`) وجود ندارد؛ بنابراین نیازی به دستکاری کدهای UI نخواهید داشت.  
-> ۳. سیاست پرتابل مطلق نورا: داده‌ها و فایل‌ها را همواره در مسیر کنار فایل اجرایی ذخیره کنید و از ذخیره‌سازی داده‌های پراکنده در درایو C اجتناب نمایید.
+> ۳. سیاست پرتابل مطلق نورا: داده‌ها و فایل‌ها را همواره در مسیر کنار فایل اجرایی ذخیره کنید و از ذخیره‌سازی داده‌های پراکنده در درایو C اجتناب نمایید.  
+> ۴. **پالت تم هسته در `src/index.css` است** (کلاس‌های `.dark` = Dark Navy، `.midnight` = مشکی مطلق، `:root` = روشن). این فایل جزو هسته است و با آپدیت هسته باید checkout شود؛ استایل اختصاصی اپ را فقط در `src/app/` بگذارید و `src/index.css` را بازنویسی نکنید.
 
 ```typescript
 export const APP_CONFIG: AppConfig = {
@@ -67,7 +68,7 @@ export const APP_CONFIG: AppConfig = {
   version: "1.0.0",                       // نسخه اختصاصی این برنامه
   coreVersion: "1.4.0",                   // نسخه هسته نورا
   defaultLanguage: "fa",                  // زبان پیش‌فرض ("fa" یا "en")
-  defaultTheme: "dark",                   // تم پیش‌فرض ("dark" یا "light")
+  defaultTheme: "dark",                   // تم پیش‌فرض ("dark" | "midnight" | "light")
   enableTray: true,                       // فعال‌سازی آیکون ترای ویندوز
   enableUpdater: true,                    // فعال‌سازی موتور آپدیت خودکار
   updaterEndpoint: "https://your-domain.com/updates/releases.json", // آدرس مانیفست آپدیت اختصاصی اپلیکیشن شما
@@ -312,7 +313,7 @@ tools\build-app.bat debug
 ---
 
 ## به‌روزرسانی هسته بویلرپلیت در آینده
-اگر هسته نورا را در مخزن مادر ارتقا دادید، جهت اعمال سریع آپدیت‌ها در پروژه خود بدون آسیب دیدن کدهای `src/app/`، به راهنمای جامع **`docs/UPDATING_CORE.md`** مراجعه کنید یا دستور زیر را اجرا کنید:
+اگر هسته نورا را در مخزن مادر ارتقا دادید، جهت اعمال سریع آپدیت‌ها در پروژه خود بدون آسیب دیدن کدهای `src/app/`، به راهنمای جامع **`docs/UPDATING_CORE.md`** مراجعه کنید. دستور رسمی checkout باید `src/index.css` را هم بیاورد (پالت تم هسته)؛ در غیر این صورت تم Navy/Midnight فرزند کهنه می‌ماند. معادل اسکریپتی:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/sync-core.ps1 -SourcePath "E:\projects\nora"
 ```

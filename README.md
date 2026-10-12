@@ -163,7 +163,7 @@ export const APP_CONFIG: AppConfig = {
 ```bash
 git remote add core https://github.com/Nitron-Pro/nora.git
 git fetch core
-git checkout core/main -- src/core src/components/ui src-tauri .cursor docs scripts package.json
+git checkout core/main -- src/core src/components/ui src/index.css src-tauri .cursor docs scripts package.json
 npm install
 npm run build
 ```

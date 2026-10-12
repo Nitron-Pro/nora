@@ -104,6 +104,7 @@ nora/
     │   ├── changelog.json          # تاریخچه تغییرات و متادیتای نسخه‌های این نرم‌افزار
     │   └── config.ts               # کانفیگ مرکزی اپ (نام، نسخه، منوهای ۳سطحی و ...)
     ├── components/ui/              # کامپوننت‌های عمومی Shadcn UI
+    ├── index.css                   # [هسته] توکن‌های تم Dark Navy / Midnight / Light
     ├── App.tsx                     # روتینگ و شل اصلی
     └── main.tsx                    # نقطه ورود ری‌اکت
 ```
