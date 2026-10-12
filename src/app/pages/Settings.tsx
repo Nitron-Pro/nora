@@ -57,6 +57,14 @@ export const Settings = () => {
                   {t("dark")}
                 </Button>
                 <Button
+                  onClick={() => setTheme("midnight")}
+                  variant={theme === "midnight" ? "default" : "ghost"}
+                  size="sm"
+                  className="h-7 text-xs"
+                >
+                  {t("midnight")}
+                </Button>
+                <Button
                   onClick={() => setTheme("light")}
                   variant={theme === "light" ? "default" : "ghost"}
                   size="sm"

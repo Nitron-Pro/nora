@@ -39,3 +39,6 @@ $RECYCLE.BIN/
 
 # Cursor terminals and internal transcripts (if created in root)
 terminals/
+
+# Local developer and packaging tools (not committed to git)
+tools/

@@ -34,7 +34,7 @@ export interface AppConfig {
   version: string;
   coreVersion: string;
   defaultLanguage: "en" | "fa";
-  defaultTheme: "dark" | "light";
+  defaultTheme: "dark" | "midnight" | "light";
   enableTray: boolean;
   enableUpdater: boolean;
   updaterEndpoint: string;
@@ -45,8 +45,8 @@ export interface AppConfig {
 export const APP_CONFIG: AppConfig = {
   appName: "Nora Base",
   appId: "com.nora.base",
-  version: "1.5.0",
-  coreVersion: "1.5.0",
+  version: "1.6.0",
+  coreVersion: "1.6.0",
   defaultLanguage: "en",
   defaultTheme: "dark",
   enableTray: true,

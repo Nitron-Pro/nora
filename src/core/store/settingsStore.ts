@@ -2,11 +2,13 @@ import { create } from "zustand";
 import { APP_CONFIG } from "@/app/config";
 import { translations, Language, TranslationKey } from "@/core/i18n/translations";
 
+export type ThemeMode = "dark" | "midnight" | "light";
+
 interface SettingsState {
-  theme: "dark" | "light";
+  theme: ThemeMode;
   language: Language;
   autoUpdate: boolean;
-  setTheme: (theme: "dark" | "light") => void;
+  setTheme: (theme: ThemeMode) => void;
   setLanguage: (lang: Language) => void;
   setAutoUpdate: (val: boolean) => void;
   toggleTheme: () => void;
@@ -14,13 +16,13 @@ interface SettingsState {
 }
 
 // Load initial values from localStorage or default
-const savedTheme = (localStorage.getItem("nora_theme") as "dark" | "light") || APP_CONFIG.defaultTheme;
+const savedTheme = (localStorage.getItem("nora_theme") as ThemeMode) || APP_CONFIG.defaultTheme;
 const savedLang = (localStorage.getItem("nora_lang") as Language) || APP_CONFIG.defaultLanguage;
 const savedAutoUpdate = localStorage.getItem("nora_auto_update") !== "false";
 
 // Apply initial DOM classes
 if (typeof document !== "undefined") {
-  document.documentElement.classList.remove("light", "dark");
+  document.documentElement.classList.remove("light", "dark", "midnight");
   document.documentElement.classList.add(savedTheme);
   document.documentElement.dir = savedLang === "fa" ? "rtl" : "ltr";
   document.documentElement.lang = savedLang;
@@ -33,7 +35,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   setTheme: (theme) => {
     localStorage.setItem("nora_theme", theme);
-    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.remove("light", "dark", "midnight");
     document.documentElement.classList.add(theme);
     set({ theme });
   },
@@ -52,9 +54,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   toggleTheme: () =>
     set((state) => {
-      const nextTheme = state.theme === "dark" ? "light" : "dark";
+      const nextTheme: ThemeMode =
+        state.theme === "dark" ? "light" : state.theme === "light" ? "midnight" : "dark";
       localStorage.setItem("nora_theme", nextTheme);
-      document.documentElement.classList.remove("light", "dark");
+      document.documentElement.classList.remove("light", "dark", "midnight");
       document.documentElement.classList.add(nextTheme);
       return { theme: nextTheme };
     }),
