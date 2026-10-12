@@ -262,6 +262,43 @@ await SidecarService.stopSidecar("python_engine");
 
 ---
 
+### گام ۸: استفاده از سیستم Toast، تایید عملیات (Confirm) و زنگوله نوتیفیکیشن
+هسته نورا دارای سیستم اعلان درون‌برنامه‌ای غنی و کامپکت است:
+```typescript
+import { useNotificationStore } from "@/core/store/notificationStore";
+
+const { toast, confirm } = useNotificationStore();
+
+// ۱. پیام اطلاع‌رسانی سریع (Auto Dismiss):
+toast({
+  type: "success", // "info" | "success" | "warning" | "error"
+  title: "فاکتور صادر شد",
+  message: "سفارش با موفقیت در سیستم ثبت گردید.",
+  duration: 4000,
+});
+
+// ۲. تایید عملیات حساس (Confirmation Action Dialog):
+confirm({
+  title: "حذف آیتم فاکتور؟",
+  message: "آیا مطمئن هستید که این سطر حذف شود؟",
+  confirmLabel: "بله، حذف کن",
+  confirmVariant: "destructive",
+  onConfirm: async () => {
+    // اجرای اکشن بعد از تایید کاربر
+    await deleteItem();
+  },
+});
+
+// ۳. تمام ۱۰ نوتیفیکیشن اخیر به همراه تاریخچه در آیکون زنگوله هدر نمایش داده می‌شوند.
+```
+
+---
+
+### گام ۹: پایش زنده و ایزولاسیون پروسس‌های سایدکار و کران‌جاب‌ها
+کلیه موتورهای کمکی (پایتون، C++، Go، اسکریپت‌ها) به صورت پیش‌فرض در فضای نام اختصاصی برنامه شما (`appId:serviceName`) اجرا شده و در تب **`Tasks & Processes > Process & Sidecar Monitor`** مانیتور می‌شوند. هر نرم‌افزار فرزند تنها سایدکارهای خودش را کنترل و متوقف می‌کند.
+
+---
+
 ## به‌روزرسانی هسته بویلرپلیت در آینده
 اگر هسته نورا را در مخزن مادر ارتقا دادید، جهت اعمال سریع آپدیت‌ها در پروژه خود بدون آسیب دیدن کدهای `src/app/`، به راهنمای جامع **`docs/UPDATING_CORE.md`** مراجعه کنید یا دستور زیر را اجرا کنید:
 ```powershell

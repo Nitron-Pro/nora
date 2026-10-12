@@ -45,8 +45,8 @@ export interface AppConfig {
 export const APP_CONFIG: AppConfig = {
   appName: "Nora Base",
   appId: "com.nora.base",
-  version: "1.4.0",
-  coreVersion: "1.4.0",
+  version: "1.5.0",
+  coreVersion: "1.5.0",
   defaultLanguage: "en",
   defaultTheme: "dark",
   enableTray: true,
@@ -90,9 +90,10 @@ export const APP_CONFIG: AppConfig = {
     },
     {
       id: "tasks",
-      label: "Tasks & Queue",
-      icon: "ListTodo",
+      label: "Tasks & Processes",
+      icon: "Activity",
       children: [
+        { id: "process-monitor", label: "Process & Sidecar Monitor", icon: "Cpu", path: "/tasks/processes" },
         { id: "today-tasks", label: "Today's Tasks", icon: "CheckCircle2", path: "/tasks/today" },
         { id: "queue-tasks", label: "Queued Tasks", icon: "Clock", path: "/tasks/queue" },
         { id: "history-tasks", label: "History Archive", icon: "Archive", path: "/tasks/history" },

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { HardwareService, SerialPortInfo, PrinterInfo } from "@/core/services/hardware";
 import { useSettingsStore } from "@/core/store/settingsStore";
+import { useNotificationStore } from "@/core/store/notificationStore";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -32,6 +33,7 @@ export const HardwareTest = () => {
   const [notificationStatus, setNotificationStatus] = useState<string | null>(null);
 
   const { t } = useSettingsStore();
+  const { toast, confirm } = useNotificationStore();
 
   const loadHardware = async () => {
     setIsScanning(true);
@@ -133,30 +135,36 @@ export const HardwareTest = () => {
         setNotificationStatus("Notification permission not granted.");
       }
     } catch (e) {
-      // Browser preview fallback
-      if ("Notification" in window) {
-        if (Notification.permission === "granted") {
-          new Notification("Nora Hardware Engine", {
-            body: "System hardware scan completed successfully offline (Web).",
-          });
-          setNotificationStatus(t("notificationSent"));
-        } else {
-          Notification.requestPermission().then((p) => {
-            if (p === "granted") {
-              new Notification("Nora Hardware Engine", {
-                body: "System hardware scan completed successfully offline (Web).",
-              });
-              setNotificationStatus(t("notificationSent"));
-            }
-          });
-        }
-      } else {
-        alert("Notification: System hardware scan completed successfully offline.");
-        setNotificationStatus(t("notificationSent"));
-      }
+      // Fallback
     }
 
+    // Trigger in-app toast
+    toast({
+      type: "success",
+      title: "System Hardware Notification",
+      message: "Serial ports and printer check finished successfully.",
+    });
+
     setTimeout(() => setNotificationStatus(null), 4000);
+  };
+
+  const handleTestConfirmationToast = () => {
+    confirm({
+      title: "Execute Thermal Print Test?",
+      message: "This will send raw ESC/POS cut bytes to the selected printer.",
+      confirmLabel: "Yes, Print Now",
+      onConfirm: async () => {
+        if (printers.length > 0) {
+          await handlePrintTestReceipt(printers[0].name);
+        } else {
+          toast({
+            type: "warning",
+            title: "No Printer",
+            message: "No connected printer available for ESC/POS test.",
+          });
+        }
+      },
+    });
   };
 
   return (
@@ -184,6 +192,15 @@ export const HardwareTest = () => {
           >
             <Bell className="w-3.5 h-3.5 text-primary" />
             <span>{t("sendNotification")}</span>
+          </Button>
+
+          <Button
+            onClick={handleTestConfirmationToast}
+            variant="secondary"
+            size="sm"
+            className="gap-1.5"
+          >
+            <span>Test In-App Confirm</span>
           </Button>
 
           <Button

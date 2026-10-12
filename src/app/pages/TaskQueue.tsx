@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { 
   CheckCircle2, 
   Clock, 
@@ -10,10 +10,17 @@ import {
   Activity, 
   RotateCcw,
   CheckCheck,
-  Zap
+  Zap,
+  Cpu,
+  StopCircle,
+  RefreshCw,
+  ShieldCheck
 } from "lucide-react";
 import { useTaskStore } from "@/core/store/taskStore";
 import { useSettingsStore } from "@/core/store/settingsStore";
+import { useNotificationStore } from "@/core/store/notificationStore";
+import { SidecarService, SidecarStatus } from "@/core/services/sidecar";
+import { APP_CONFIG } from "@/app/config";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -21,10 +28,40 @@ import { Input } from "@/components/ui/Input";
 import { TaskInterval } from "@/core/types/task";
 
 export const TaskQueue = () => {
-  const [activeTab, setActiveTab] = useState<"today" | "queue" | "history">("today");
+  const [activeTab, setActiveTab] = useState<"processes" | "today" | "queue" | "history">("processes");
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newInterval, setNewInterval] = useState<TaskInterval>("hourly");
+
+  // Sidecar process monitoring
+  const [sidecars, setSidecars] = useState<SidecarStatus[]>([]);
+  const [loadingSidecars, setLoadingSidecars] = useState(false);
+  const [embeddedList, setEmbeddedList] = useState<string[]>([]);
+  const [testCmdInput, setTestCmdInput] = useState("");
+
+  const { confirm, toast } = useNotificationStore();
+
+  const loadProcesses = async () => {
+    setLoadingSidecars(true);
+    try {
+      const [list, embedded] = await Promise.all([
+        SidecarService.listAppSidecars(true),
+        SidecarService.listEmbeddedSidecars(),
+      ]);
+      setSidecars(list);
+      setEmbeddedList(embedded);
+    } catch (e) {
+      console.error("Failed to load sidecars:", e);
+    } finally {
+      setLoadingSidecars(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProcesses();
+    const interval = setInterval(loadProcesses, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const {
     tasks,
@@ -63,6 +100,45 @@ export const TaskQueue = () => {
     const dates = Array.from(new Set(logs.map((l) => l.date)));
     return dates.sort().reverse();
   }, [logs]);
+
+  const handleStopSidecar = (name: string) => {
+    confirm({
+      title: t("killConfirmTitle"),
+      message: `${t("killConfirmDesc")} (${name})`,
+      confirmLabel: t("stopProcess"),
+      confirmVariant: "destructive",
+      onConfirm: async () => {
+        const res = await SidecarService.stopSidecar(name);
+        toast({
+          type: "info",
+          title: "Process Stopped",
+          message: res.message,
+        });
+        loadProcesses();
+      },
+    });
+  };
+
+  const handleStartCustomSidecar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testCmdInput.trim()) return;
+    const cmd = testCmdInput.trim();
+    const serviceName = cmd.replace(/[^a-zA-Z0-9_-]/g, "_");
+
+    const res = await SidecarService.startSidecar({
+      name: serviceName,
+      command: cmd,
+    });
+
+    toast({
+      type: res.running ? "success" : "error",
+      title: res.running ? "Sidecar Started" : "Failed to Start",
+      message: res.message,
+    });
+
+    setTestCmdInput("");
+    loadProcesses();
+  };
 
   const handleCreateTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,6 +274,17 @@ export const TaskQueue = () => {
       <div className="flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setActiveTab("processes")}
+            className={`flex items-center gap-2 pb-2.5 text-xs font-medium border-b-2 transition-colors cursor-pointer ${
+              activeTab === "processes"
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Cpu className="w-3.5 h-3.5 text-primary" />
+            <span>{t("processMonitor")} ({sidecars.length})</span>
+          </button>
+          <button
             onClick={() => setActiveTab("today")}
             className={`flex items-center gap-2 pb-2.5 text-xs font-medium border-b-2 transition-colors cursor-pointer ${
               activeTab === "today"
@@ -261,6 +348,128 @@ export const TaskQueue = () => {
 
       {/* Content Panels */}
       <Card className="overflow-hidden">
+        {/* TAB 0: Sidecars & Background Processes Monitor */}
+        {activeTab === "processes" && (
+          <div className="p-5 space-y-5">
+            {/* Scoped Namespace Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-muted/40 border border-border/80">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-foreground">
+                      {t("scopedNamespace")}:
+                    </span>
+                    <code className="text-[11px] font-mono bg-background px-2 py-0.5 rounded border border-border text-primary font-bold">
+                      {APP_CONFIG.appId}
+                    </code>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {t("processSubtitle")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={loadProcesses}
+                  disabled={loadingSidecars}
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 h-7 text-[11px]"
+                >
+                  <RefreshCw className={`w-3 h-3 ${loadingSidecars ? "animate-spin" : ""}`} />
+                  <span>Refresh</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Active Processes List */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-foreground flex items-center gap-2">
+                  <Activity className="w-3.5 h-3.5 text-primary" />
+                  <span>{t("activeSidecars")} ({sidecars.length})</span>
+                </h3>
+                {embeddedList.length > 0 && (
+                  <span className="text-[10px] font-mono text-muted-foreground">
+                    Embedded Binaries: {embeddedList.join(", ")}
+                  </span>
+                )}
+              </div>
+
+              {sidecars.length === 0 ? (
+                <div className="p-8 text-center border border-dashed border-border rounded-xl text-xs text-muted-foreground">
+                  {t("noSidecarsFound")}
+                </div>
+              ) : (
+                <div className="border border-border/80 rounded-xl overflow-hidden divide-y divide-border/60">
+                  {sidecars.map((sc) => (
+                    <div
+                      key={sc.name}
+                      className="p-3.5 flex items-center justify-between gap-3 text-xs hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                          <Cpu className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-semibold text-foreground text-xs truncate">
+                              {sc.name}
+                            </span>
+                            {sc.pid && (
+                              <Badge variant="outline" className="font-mono text-[9px]">
+                                PID: {sc.pid}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                            {sc.message}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant={sc.running ? "success" : "destructive"}>
+                          {sc.running ? t("processRunning") : t("processStopped")}
+                        </Badge>
+                        {sc.running && (
+                          <Button
+                            onClick={() => handleStopSidecar(sc.name)}
+                            variant="destructive"
+                            size="sm"
+                            className="gap-1 h-7 text-[11px] px-2.5"
+                          >
+                            <StopCircle className="w-3 h-3" />
+                            <span>{t("stopProcess")}</span>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Test / Spawn Sidecar Input */}
+            <form onSubmit={handleStartCustomSidecar} className="pt-2 border-t border-border/60">
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Run sidecar command (e.g. engine.exe, python, ping 127.0.0.1)..."
+                  value={testCmdInput}
+                  onChange={(e) => setTestCmdInput(e.target.value)}
+                  className="text-xs h-8"
+                />
+                <Button type="submit" size="sm" className="gap-1.5 h-8 text-xs shrink-0">
+                  <Play className="w-3 h-3" />
+                  <span>{t("startProcess")}</span>
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* TAB 1: Today's Executed Tasks */}
         {activeTab === "today" && (
           <div>

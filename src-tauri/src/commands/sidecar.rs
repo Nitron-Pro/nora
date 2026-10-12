@@ -437,3 +437,59 @@ pub fn cleanup_all_sidecars(state: &SidecarManager) {
         }
     }
 }
+
+/// List all currently registered sidecars, optionally scoped by app_prefix for complete process isolation
+#[tauri::command]
+pub fn list_sidecars(
+    app_prefix: Option<String>,
+    state: State<'_, SidecarManager>,
+) -> Result<Vec<SidecarStatus>, String> {
+    let mut processes = state.0.lock().map_err(|e| e.to_string())?;
+    let mut results = Vec::new();
+    let mut to_remove = Vec::new();
+
+    for (name, child) in processes.iter_mut() {
+        // Enforce application namespace isolation:
+        // If app_prefix is provided (e.g. "com.nora.tesu" or "tesu:"), only show matching sidecars
+        if let Some(ref prefix) = app_prefix {
+            if !name.starts_with(prefix) {
+                continue;
+            }
+        }
+
+        match child.try_wait() {
+            Ok(None) => {
+                results.push(SidecarStatus {
+                    name: name.clone(),
+                    running: true,
+                    pid: Some(child.id()),
+                    message: "Running".to_string(),
+                });
+            }
+            Ok(Some(exit_code)) => {
+                results.push(SidecarStatus {
+                    name: name.clone(),
+                    running: false,
+                    pid: None,
+                    message: format!("Exited with code: {}", exit_code),
+                });
+                to_remove.push(name.clone());
+            }
+            Err(e) => {
+                results.push(SidecarStatus {
+                    name: name.clone(),
+                    running: false,
+                    pid: None,
+                    message: format!("Error checking status: {}", e),
+                });
+                to_remove.push(name.clone());
+            }
+        }
+    }
+
+    for dead_name in to_remove {
+        processes.remove(&dead_name);
+    }
+
+    Ok(results)
+}

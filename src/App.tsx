@@ -6,6 +6,7 @@ import { ChangelogModal } from "@/core/components/ChangelogModal";
 import { UpdateModal } from "@/core/components/UpdateModal";
 import { UpdateBadge } from "@/core/components/UpdateBadge";
 import { AboutModal } from "@/core/components/AboutModal";
+import { ToastContainer } from "@/core/components/ToastContainer";
 import { Dashboard } from "@/app/pages/Dashboard";
 import { Settings } from "@/app/pages/Settings";
 import { TaskQueue } from "@/app/pages/TaskQueue";
@@ -37,6 +38,7 @@ export function App() {
     switch (currentPath) {
       case "/settings":
         return <Settings />;
+      case "/tasks/processes":
       case "/tasks/today":
       case "/tasks/queue":
       case "/tasks/history":
@@ -151,6 +153,9 @@ export function App() {
 
       {/* In-App Update Modal (Check / Download / Restart) */}
       <UpdateModal />
+
+      {/* Global In-App Toast & Confirmation System */}
+      <ToastContainer />
     </div>
   );
 }

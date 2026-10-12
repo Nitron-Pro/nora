@@ -74,6 +74,21 @@ export const translations = {
     allDates: "All Dates",
     clearHistory: "Clear Archive",
 
+    // Processes & Sidecars
+    processMonitor: "Processes & Sidecars",
+    processSubtitle: "Live monitoring and management of background engines (Python, C++, Go, Workers).",
+    scopedNamespace: "App Namespace",
+    activeSidecars: "Active Sidecars",
+    cronJobs: "Scheduled Cron Jobs",
+    stopProcess: "Stop",
+    startProcess: "Start Process",
+    processRunning: "RUNNING",
+    processStopped: "STOPPED",
+    noSidecarsFound: "No active sidecars running for this application.",
+    killConfirmTitle: "Terminate Background Process?",
+    killConfirmDesc: "Are you sure you want to stop this sidecar process? Any active job might be interrupted.",
+    confirmAction: "Confirm Action",
+
     // Settings
     systemSettings: "System Settings",
     settingsSubtitle: "Manage application appearance, language, updates, and offline behaviors.",
@@ -193,6 +208,21 @@ export const translations = {
     filterByDate: "فیلتر بر اساس تاریخ",
     allDates: "تمام تاریخ‌ها",
     clearHistory: "پاکسازی آرشیو",
+
+    // Processes & Sidecars
+    processMonitor: "مانیتورینگ پروسس‌ها و سایدکارها",
+    processSubtitle: "پایش زنده و مدیریت موتورهای پس‌زمینه (پایتون، C++، Go، ورکرها).",
+    scopedNamespace: "فضای نام اپلیکیشن",
+    activeSidecars: "سایدکارهای فعال",
+    cronJobs: "کران‌جاب‌ها و زمان‌بندی‌ها",
+    stopProcess: "متوقف‌سازی",
+    startProcess: "اجرای پروسس",
+    processRunning: "در حال اجرا",
+    processStopped: "متوقف شده",
+    noSidecarsFound: "هیچ سایدکار فعالی برای این برنامه یافت نشد.",
+    killConfirmTitle: "توقف پروسس پس‌زمینه؟",
+    killConfirmDesc: "آیا از متوقف کردن این سایدکار اطمینان دارید؟ ممکن است پردازش‌های جاری قطع شوند.",
+    confirmAction: "تایید عملیات",
 
     // Settings
     systemSettings: "تنظیمات سیستم",
