@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.7.0",
+    "date": "2026-10-13",
+    "title": "Nora Core v1.7.0 - Separate Persian/English fonts and Windows toast test",
+    "highlights": [
+      "Local offline fonts: Vazirmatn or Estedad for Persian, Inter or DM Sans for English, chosen independently in Settings",
+      "Settings button sends a real Windows notification and surfaces permission or plugin errors",
+      "Windows build launcher rule is explicit: tools/build-app.bat is required, a PowerShell script alone is not enough"
+    ]
+  },
+  {
     "version": "1.6.0",
     "date": "2026-10-12",
     "title": "Nora Core v1.6.0 - Dev Tools Folder, Navy Theme & Midnight Palette",
