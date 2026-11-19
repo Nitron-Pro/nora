@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { LayoutDashboard, ChevronRight, Search } from "lucide-react";
 import { APP_CONFIG, MenuItemLevel1, MenuItemLevel2 } from "@/app/config";
 import { cn } from "@/core/utils/cn";
@@ -34,9 +34,34 @@ export const AppSidebar = ({ currentPath, onNavigate }: AppSidebarProps) => {
     }
   };
 
+  // Keep the sidebar in sync with the current route (tray, header buttons, deep links):
+  // select the matching level-1 item and expand the level-2 group that contains the path.
+  useEffect(() => {
+    for (const l1 of APP_CONFIG.menuItems) {
+      if (l1.path === currentPath) {
+        setSelectedL1((prev) => (prev.id === l1.id ? prev : l1));
+        return;
+      }
+      for (const l2 of l1.children ?? []) {
+        const inL3 = l2.children?.some((l3) => l3.path === currentPath);
+        if (l2.path === currentPath || inL3) {
+          setSelectedL1((prev) => (prev.id === l1.id ? prev : l1));
+          if (inL3) setExpandedL2(l2.id);
+          return;
+        }
+      }
+    }
+  }, [currentPath]);
+
   const handleL2Click = (item: MenuItemLevel2) => {
-    if (item.children && item.children.length > 0) {
-      setExpandedL2(expandedL2 === item.id ? null : item.id);
+    const hasChildren = !!item.children && item.children.length > 0;
+    if (hasChildren) {
+      const wasOpen = expandedL2 === item.id;
+      setExpandedL2(wasOpen ? null : item.id);
+      // A group that also has its own page navigates when it opens.
+      if (item.path && !wasOpen) onNavigate(item.path);
+      // A group without its own page opens its first sub-item.
+      else if (!item.path && !wasOpen) onNavigate(item.children![0].path);
     } else if (item.path) {
       onNavigate(item.path);
     }
@@ -135,8 +160,9 @@ export const AppSidebar = ({ currentPath, onNavigate }: AppSidebarProps) => {
             {filteredL2.map((l2) => {
               const L2Icon = getIcon(l2.icon);
               const hasL3 = l2.children && l2.children.length > 0;
-              const isL2Active = currentPath === l2.path;
-              const isExpanded = expandedL2 === l2.id || hasL3;
+              const isL2Active =
+                currentPath === l2.path || !!l2.children?.some((l3) => l3.path === currentPath);
+              const isExpanded = expandedL2 === l2.id || (searchQuery.trim() !== "" && !!hasL3);
               const l2Label = getLabel(l2.label, l2.id);
 
               return (

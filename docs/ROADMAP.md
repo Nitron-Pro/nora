@@ -58,3 +58,4 @@
 - **[2026-10-13]**: نسخه v1.7.0 — فونت فارسی (وزیرمتن/استعداد) و انگلیسی (Inter/DM Sans) جدا در تنظیمات؛ دکمه تست نوتیفیکیشن ویندوز؛ تاکید اجباری بودن `tools/build-app.bat`.
 - **[2026-11-19]**: نسخه v1.8.0 هسته — لایهٔ اتصال راه‌دور FTP/FTPS/SFTP و صف انتقال، ترمینال SSH و exec با CommandGuard و audit، Vault رمزنگاری‌شده، Snapshot با libgit2، ابزار hash/zip، کامپوننت‌های Terminal/DiffViewer/FileDualPane، رجیستری آیکون منو، `coreVersion` + `sync-core.mjs`، اجباری‌شدن Zero C-Drive (`portable.rs` + `check-portable.mjs`) و CI. مرجع: `docs/REMOTE_AND_DEPLOY_APIS.md`.
 - **[باز‌مانده]**: آپدیتر واقعی (`tauri-plugin-updater` + امضا) به‌دلیل نیاز به کلید امضا و ریسک شکستن اپ‌های فرزند هنوز انجام نشده؛ ذخیره‌سازی تسک‌ها در SQLite کنار exe (فعلاً localStorage داخل `nora-data/webview`)؛ تنگ‌تر کردن CSP.
+- **[2026-11-19]**: نسخه v1.8.1 — رفع باگ زیرمنوی سطح ۲ در `AppSidebar` (همیشه باز بود و کلیک اثری نداشت؛ حالا باز/بسته و ناوبری می‌کند) و همگام‌سازی سایدبار با مسیر فعلی.

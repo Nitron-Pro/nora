@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.8.1",
+    "date": "2026-11-19",
+    "title": "Nora Core v1.8.1 - Sidebar level-2 submenu fix",
+    "highlights": [
+      "Fixed: level-2 items that have level-3 children were permanently expanded, so clicking them did nothing; they now toggle and navigate (to their own path, or to the first sub-item)",
+      "Sidebar now follows the current route: selects the matching level-1 item and expands the level-2 group containing the active page (tray, header and deep-link navigation)",
+      "Level-2 group is highlighted when one of its sub-items is active"
+    ]
+  },
+  {
     "version": "1.8.0",
     "date": "2026-11-19",
     "title": "Nora Core v1.8.0 - Remote FTP/SFTP, guarded SSH terminal, Vault, Snapshots & enforced Zero C-Drive",
