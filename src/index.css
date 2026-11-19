@@ -81,6 +81,10 @@ html[data-fa-font="vazirmatn"] { --font-fa: "Vazirmatn", Tahoma, sans-serif; }
 html[data-fa-font="estedad"] { --font-fa: "Estedad", Tahoma, sans-serif; }
 html[data-en-font="inter"] { --font-en: "Inter", "Segoe UI", sans-serif; }
 html[data-en-font="dm-sans"] { --font-en: "DM Sans", "Segoe UI", sans-serif; }
+html[data-fa-font="noto-arabic"] { --font-fa: "Noto Sans Arabic", Tahoma, sans-serif; }
+html[data-fa-font="plex-arabic"] { --font-fa: "IBM Plex Sans Arabic", Tahoma, sans-serif; }
+html[data-en-font="manrope"] { --font-en: "Manrope", "Segoe UI", sans-serif; }
+html[data-en-font="jakarta"] { --font-en: "Plus Jakarta Sans", "Segoe UI", sans-serif; }
 
 html[dir="rtl"] body {
   font-family: var(--font-fa);
@@ -112,3 +116,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.4);
 }
+
+/* Browser-only zoom fallback: keep full-viewport layouts inside the window when html has CSS zoom. */
+html[style*="--ui-zoom"] .h-screen { height: calc(100vh / var(--ui-zoom)); }
+html[style*="--ui-zoom"] .w-screen { width: calc(100vw / var(--ui-zoom)); }

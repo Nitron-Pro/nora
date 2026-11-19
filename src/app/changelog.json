@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.9.0",
+    "date": "2026-11-19",
+    "title": "Nora Core v1.9.0 - Modern Settings, more fonts, larger text sizes",
+    "highlights": [
+      "Settings page redesigned (hero header, tile pickers with live theme/font previews, centered responsive grid) and moved into the core: src/core/pages/SettingsPage.tsx; src/app/pages/Settings.tsx is now a thin re-export (child apps: replace your copy with it to receive updates)",
+      "Two more fonts per language: Noto Sans Arabic and IBM Plex Sans Arabic (Persian); Manrope and Plus Jakarta Sans (English); all bundled offline",
+      "Text size options for low-vision users: Normal, Large (112%), Extra large (125%) applied to the whole UI via native webview zoom (capability core:webview:allow-set-webview-zoom added)",
+      "New npm deps (merged by sync-core): @fontsource/noto-sans-arabic, ibm-plex-sans-arabic, manrope, plus-jakarta-sans",
+      "Native folder/file pickers: DialogService.pickFolder()/pickFiles() (src/core/services/dialog.ts) via tauri-plugin-dialog, capability dialog:default; absolute paths with '/'"
+    ]
+  },
+  {
     "version": "1.8.1",
     "date": "2026-11-19",
     "title": "Nora Core v1.8.1 - Sidebar level-2 submenu fix",

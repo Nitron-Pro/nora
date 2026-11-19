@@ -12,11 +12,13 @@
     "core:window:allow-close",
     "core:window:allow-is-maximized",
     "core:window:allow-show",
+    "core:webview:allow-set-webview-zoom",
     "core:window:allow-hide",
     "core:window:allow-set-focus",
     "core:window:allow-start-dragging",
     "shell:default",
     "notification:default",
+    "dialog:default",
     "autostart:default"
   ]
 }

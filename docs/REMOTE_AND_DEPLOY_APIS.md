@@ -56,6 +56,14 @@ repo یا مسیر مطلق است یا شناسه (`[A-Za-z0-9_.-]+` → `nora-
 ## ۶. آیکون‌های منو
 `registerIcons({...})` یا فایل اختیاری `src/app/icons.ts` با `export const APP_ICONS = {...}` (خودکار لود می‌شود). آیکون‌های Server, Package, Rocket, FolderOpen, SquareTerminal, History داخل هسته هستند.
 
+## ۶‌ب. انتخاب فایل/پوشهٔ محلی (دیالوگ بومی)
+`src/core/services/dialog.ts` — `tauri-plugin-dialog` (مجوز `dialog:default`):
+```ts
+DialogService.pickFolder({ title?, defaultPath? }): Promise<string | null>   // لغو = null
+DialogService.pickFiles({ multiple?, filters?: {name, extensions[]}[], title?, defaultPath? }): Promise<string[]>  // لغو = []
+```
+مسیرها مطلق و همیشه با `/` برمی‌گردند (مناسب `transfer_enqueue.local_path`, `zip_create`, `snapshot_*`). دیالوگ بومی ویندوز فایلی در AppData/Temp توسط برنامه نمی‌نویسد (فقط ویندوز لیست «اخیر» خودش را در رجیستری نگه می‌دارد)؛ `check-portable` تداخلی ندارد. پس فرمان‌های جایگزین مرور محلی لازم نشد.
+
 ## ۷. ترمینال SSH و اجرای دستور با گارد
 سرویس TS: `src/core/services/terminal.ts` (`TerminalService`). **پیش‌فرض: همه‌چیز ممنوع.** گارد فقط در Rust اجرا می‌شود و فرانت‌اند راهی برای نوشتن مستقیم در کانال ندارد.
 
