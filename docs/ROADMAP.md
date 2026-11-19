@@ -56,4 +56,5 @@
 - **[تاریخ فعلی]**: تثبیت قانون Docs-First Git برای ایجنت مادر: قبل از هر `git commit` الزام به‌روزرسانی همزمان `src/app/changelog.json`، `README.md`، `docs/ROADMAP.md` و اسناد اثرپذیر؛ چون اپ‌های فرزند هسته و مستندات را از همین مخزن می‌گیرند (`.cursor/rules/nora-docs-git.mdc`).
 - **[تاریخ فعلی]**: افزودن `src/index.css` به لیست رسمی checkout هسته (`docs/UPDATING_CORE.md`، `scripts/sync-core.ps1`، README و قوانین ایجنت) تا پالت Dark Navy و Midnight بعد از آپدیت هسته در اپ‌های فرزند اعمال شود.
 - **[2026-10-13]**: نسخه v1.7.0 — فونت فارسی (وزیرمتن/استعداد) و انگلیسی (Inter/DM Sans) جدا در تنظیمات؛ دکمه تست نوتیفیکیشن ویندوز؛ تاکید اجباری بودن `tools/build-app.bat`.
-
+- **[2026-11-19]**: نسخه v1.8.0 هسته — لایهٔ اتصال راه‌دور FTP/FTPS/SFTP و صف انتقال، ترمینال SSH و exec با CommandGuard و audit، Vault رمزنگاری‌شده، Snapshot با libgit2، ابزار hash/zip، کامپوننت‌های Terminal/DiffViewer/FileDualPane، رجیستری آیکون منو، `coreVersion` + `sync-core.mjs`، اجباری‌شدن Zero C-Drive (`portable.rs` + `check-portable.mjs`) و CI. مرجع: `docs/REMOTE_AND_DEPLOY_APIS.md`.
+- **[باز‌مانده]**: آپدیتر واقعی (`tauri-plugin-updater` + امضا) به‌دلیل نیاز به کلید امضا و ریسک شکستن اپ‌های فرزند هنوز انجام نشده؛ ذخیره‌سازی تسک‌ها در SQLite کنار exe (فعلاً localStorage داخل `nora-data/webview`)؛ تنگ‌تر کردن CSP.

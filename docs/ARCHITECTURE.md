@@ -80,7 +80,13 @@ nora/
 │   │   │   ├── printer.rs          # فرامین چاپگر خام (ESC/POS) و سیستمی
 │   │   │   ├── updater.rs          # فرامین بررسی، دانلود و متادیتای آپدیتر
 │   │   │   ├── scheduler.rs        # صف و اجرای پس‌زمینه کارهای زمان‌بندی‌شده
-│   │   │   └── system.rs           # اطلاعات سیستم، تنظیمات پنجره و اعلان‌ها
+│   │   │   ├── system.rs           # اطلاعات سیستم، تنظیمات پنجره و اعلان‌ها
+│   │   │   ├── remote/             # [v1.8.0] FTP/FTPS/SFTP، ssh_common (known_hosts)، صف انتقال
+│   │   │   ├── terminal/           # [v1.8.0] pty.rs، exec.rs، guard.rs (CommandGuard)، audit.rs
+│   │   │   ├── vault.rs            # [v1.8.0] IPC رمزنگاری‌شده (منطق در src/vault/)
+│   │   │   ├── snapshot.rs         # [v1.8.0] موتور git محلی (git2)
+│   │   │   └── fsutil.rs           # [v1.8.0] hash، compare، zip
+│   │   ├── portable.rs             # [v1.8.0] تنها مسیرهای مجاز ذخیره‌سازی (nora-data کنار exe)
 │   │   ├── lib.rs                  # رجیستر کردن پلاگین‌ها و کامندها
 │   │   └── main.rs                 # نقطه ورود برنامه
 │   ├── capabilities/               # مجوزها و Capabilities در Tauri 2

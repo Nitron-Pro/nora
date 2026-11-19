@@ -1,34 +1,10 @@
 import { useState, useMemo } from "react";
-import { 
-  LayoutDashboard, 
-  Cpu, 
-  ListTodo, 
-  Settings, 
-  Radio, 
-  Printer, 
-  CheckCircle2, 
-  Clock, 
-  Archive,
-  ChevronRight,
-  Search,
-  LucideIcon
-} from "lucide-react";
+import { LayoutDashboard, ChevronRight, Search } from "lucide-react";
 import { APP_CONFIG, MenuItemLevel1, MenuItemLevel2 } from "@/app/config";
 import { cn } from "@/core/utils/cn";
 import { useSettingsStore } from "@/core/store/settingsStore";
 import { TranslationKey } from "@/core/i18n/translations";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  LayoutDashboard,
-  Cpu,
-  ListTodo,
-  Settings,
-  Radio,
-  Printer,
-  CheckCircle2,
-  Clock,
-  Archive,
-};
+import { getIcon } from "@/core/icons";
 
 interface AppSidebarProps {
   currentPath: string;
@@ -107,7 +83,7 @@ export const AppSidebar = ({ currentPath, onNavigate }: AppSidebarProps) => {
       {/* LEVEL 1: Primary Thin Bar (Large Icons) */}
       <div className="w-16 h-full bg-background border-e border-border/80 flex flex-col items-center py-3 gap-2.5 z-10 shrink-0">
         {APP_CONFIG.menuItems.map((item) => {
-          const Icon = ICON_MAP[item.icon] || LayoutDashboard;
+          const Icon = getIcon(item.icon) || LayoutDashboard;
           const isActive = selectedL1.id === item.id;
           const label = getLabel(item.label, item.id);
 
@@ -157,7 +133,7 @@ export const AppSidebar = ({ currentPath, onNavigate }: AppSidebarProps) => {
 
           <div className="flex-1 overflow-y-auto space-y-1 pe-0.5">
             {filteredL2.map((l2) => {
-              const L2Icon = l2.icon ? ICON_MAP[l2.icon] : null;
+              const L2Icon = getIcon(l2.icon);
               const hasL3 = l2.children && l2.children.length > 0;
               const isL2Active = currentPath === l2.path;
               const isExpanded = expandedL2 === l2.id || hasL3;

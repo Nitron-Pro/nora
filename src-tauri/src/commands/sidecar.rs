@@ -30,7 +30,7 @@ pub struct SidecarStatus {
 
 /// Automatically extracts embedded sidecar binary to executable's bin directory (preferred for true portable apps)
 /// or AppLocalData as fallback if present in EMBEDDED_SIDECARS
-pub fn ensure_embedded_sidecar_extracted(app_handle: &AppHandle, command: &str) -> Option<PathBuf> {
+pub fn ensure_embedded_sidecar_extracted(_app_handle: &AppHandle, command: &str) -> Option<PathBuf> {
     let clean_name = Path::new(command)
         .file_name()
         .map(|f| f.to_string_lossy().to_string())
@@ -53,10 +53,7 @@ pub fn ensure_embedded_sidecar_extracted(app_handle: &AppHandle, command: &str) 
                 }
             }
 
-            // Priority 2: Fallback to local data dir if exe directory is write-protected
-            if let Ok(local_data) = app_handle.path().app_local_data_dir() {
-                target_candidates.push(local_data.join("bin"));
-            }
+            // No fallback to AppData/LocalAppData: Zero C-Drive Pollution rule.
 
             for target_dir in target_candidates {
                 if fs::create_dir_all(&target_dir).is_ok() {
@@ -100,7 +97,7 @@ pub fn ensure_embedded_sidecar_extracted(app_handle: &AppHandle, command: &str) 
 /// 1. As an absolute or current directory path
 /// 2. Extracted from compiled-in EMBEDDED_SIDECARS into portable bin/ (next to exe)
 /// 3. Next to the main executable (current_exe dir) or in exe_dir/bin
-/// 4. In app_data_dir / app_local_data_dir (fallback)
+/// 4. In nora-data (portable data dir next to exe; never AppData)
 /// 5. In resource_dir (bundled sidecars)
 /// 6. In standard system PATH
 pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
@@ -149,35 +146,16 @@ pub fn resolve_sidecar_path(app_handle: &AppHandle, command: &str) -> PathBuf {
         }
     }
 
-    // 4. Check in AppLocalData / AppData (standard location for embedded / extracted binaries)
-    if let Ok(app_local_data) = app_handle.path().app_local_data_dir() {
-        let candidate = app_local_data.join(command);
-        if candidate.exists() {
-            return candidate;
-        }
-        let candidate_bin = app_local_data.join("bin").join(command);
-        if candidate_bin.exists() {
-            return candidate_bin;
-        }
-        let candidate_engines = app_local_data.join("engines").join(command);
-        if candidate_engines.exists() {
-            return candidate_engines;
+    // 4. Check in nora-data/engines next to the exe (portable data dir; never AppData)
+    if let Ok(data) = crate::portable::data_dir() {
+        for candidate in [data.join(command), data.join("bin").join(command), data.join("engines").join(command)] {
+            if candidate.exists() {
+                return candidate;
+            }
         }
     }
 
-    // 5. Check in AppData (Roaming)
-    if let Ok(app_data) = app_handle.path().app_data_dir() {
-        let candidate = app_data.join(command);
-        if candidate.exists() {
-            return candidate;
-        }
-        let candidate_bin = app_data.join("bin").join(command);
-        if candidate_bin.exists() {
-            return candidate_bin;
-        }
-    }
-
-    // 6. Check in bundled resource dir
+    // 5. Check in bundled resource dir
     if let Ok(resource_dir) = app_handle.path().resource_dir() {
         let candidate = resource_dir.join(command);
         if candidate.exists() {
@@ -226,25 +204,13 @@ pub fn get_sidecar_directories(app_handle: AppHandle) -> Result<HashMap<String, 
         }
     }
 
-    if let Ok(local_data) = app_handle.path().app_local_data_dir() {
-        dirs.insert(
-            "app_local_data_dir".to_string(),
-            local_data.to_string_lossy().to_string(),
-        );
-        if !dirs.contains_key("suggested_bin_dir") {
-            let bin_dir = local_data.join("bin");
-            dirs.insert(
-                "suggested_bin_dir".to_string(),
-                bin_dir.to_string_lossy().to_string(),
-            );
-        }
-    }
-
-    if let Ok(data) = app_handle.path().app_data_dir() {
-        dirs.insert(
-            "app_data_dir".to_string(),
-            data.to_string_lossy().to_string(),
-        );
+    // Legacy keys kept for child-app API compatibility; they now point to the portable
+    // data dir next to the exe (never %APPDATA% / %LOCALAPPDATA%).
+    if let Ok(data) = crate::portable::data_dir() {
+        let data = data.to_string_lossy().to_string();
+        dirs.insert("nora_data_dir".to_string(), data.clone());
+        dirs.insert("app_local_data_dir".to_string(), data.clone());
+        dirs.insert("app_data_dir".to_string(), data);
     }
 
     if let Ok(resource) = app_handle.path().resource_dir() {
@@ -268,7 +234,7 @@ pub fn check_port_available(port: u16) -> Result<bool, String> {
 
 /// Generic Sidecar starter: starts any external binary/executable
 /// Works for Python, Go, Node, C++ binaries
-/// Automatically resolves relative paths against embedded binaries, exe_dir, AppData, and resource_dir.
+/// Automatically resolves relative paths against embedded binaries, exe_dir, nora-data, and resource_dir.
 #[tauri::command]
 pub fn start_sidecar(
     app_handle: AppHandle,

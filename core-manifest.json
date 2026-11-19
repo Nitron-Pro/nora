@@ -1,0 +1,26 @@
+{
+  "coreVersion": "1.8.0",
+  "description": "Paths owned by the Nora core. Child apps receive these via `node scripts/sync-core.mjs`. src/app/ is NEVER listed.",
+  "paths": [
+    "src/core",
+    "src/components/ui",
+    "src/index.css",
+    "src-tauri/src",
+    "src-tauri/build.rs",
+    "src-tauri/Cargo.toml",
+    "src-tauri/capabilities",
+    ".cursor",
+    "docs",
+    "scripts",
+    "core-manifest.json",
+    ".github/workflows/core-ci.yml"
+  ],
+  "packageJson": {
+    "mergeScripts": true,
+    "mergeDependenciesFromCore": true,
+    "note": "Child-only dependencies are preserved; dependencies also present in core take core's version range."
+  },
+  "cargo": {
+    "note": "src-tauri/Cargo.toml is replaced by core's. Child apps needing extra crates must keep them in a [dependencies] block marked '# --- child-app deps ---' which sync-core preserves."
+  }
+}

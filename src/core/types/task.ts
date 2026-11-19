@@ -10,6 +10,10 @@ export interface ScheduledTask {
   status: TaskStatus;
   category: "hardware" | "database" | "system" | "network";
   createdAt: string;
+  /** Additive: tasks driven by an external source (e.g. remote transfers). In-memory only, not persisted. */
+  external?: boolean;
+  /** Additive: 0..100 progress for external tasks. */
+  progress?: number;
 }
 
 export interface TaskExecutionLog {

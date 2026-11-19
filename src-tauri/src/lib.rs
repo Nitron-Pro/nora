@@ -1,4 +1,6 @@
 mod commands;
+mod portable;
+mod vault;
 
 use commands::serial::{list_serial_ports, send_serial_command};
 use commands::printer::{list_printers, print_raw_esc_pos};
@@ -15,8 +17,12 @@ use tauri::{
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Zero C-Drive: keep WebView2 data (localStorage, cache) next to the exe.
+    portable::init_webview_data_dir();
+
     tauri::Builder::default()
         .manage(SidecarManager::default())
+        .manage(vault::init_state())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
@@ -54,6 +60,7 @@ pub fn run() {
                     "quit" => {
                         let state = app.state::<SidecarManager>();
                         cleanup_all_sidecars(&state);
+                        commands::terminal::cleanup_all();
                         app.exit(0);
                     }
                     _ => {}
@@ -90,7 +97,67 @@ pub fn run() {
             get_sidecar_status,
             get_sidecar_directories,
             list_embedded_sidecars,
-            list_sidecars
+            list_sidecars,
+            // --- v1.8.0: vault ---
+            commands::vault::vault_status,
+            commands::vault::vault_create,
+            commands::vault::vault_unlock,
+            commands::vault::vault_lock,
+            commands::vault::vault_set,
+            commands::vault::vault_delete,
+            commands::vault::vault_list,
+            commands::vault::vault_has,
+            commands::vault::vault_change_master,
+            commands::vault::vault_set_auto_lock,
+            commands::vault::vault_export_backup,
+            commands::vault::vault_import_backup,
+            // --- v1.8.0: remote FTP/FTPS/SFTP + transfer queue ---
+            commands::remote::remote_connect,
+            commands::remote::remote_disconnect,
+            commands::remote::remote_capabilities,
+            commands::remote::remote_list,
+            commands::remote::remote_stat,
+            commands::remote::remote_mkdir,
+            commands::remote::remote_rename,
+            commands::remote::remote_delete,
+            commands::remote::remote_chmod,
+            commands::remote::remote_read_file,
+            commands::remote::remote_write_file,
+            commands::remote::remote_hash,
+            commands::remote::ssh_common::ssh_trust_host,
+            commands::remote::transfer::transfer_enqueue,
+            commands::remote::transfer::transfer_cancel,
+            commands::remote::transfer::transfer_list,
+            commands::remote::transfer::transfer_set_concurrency,
+            commands::remote::transfer::transfer_clear_finished,
+            // --- v1.8.0: local git snapshots ---
+            commands::snapshot::snapshot_init,
+            commands::snapshot::snapshot_commit,
+            commands::snapshot::snapshot_log,
+            commands::snapshot::snapshot_diff,
+            commands::snapshot::snapshot_restore_file,
+            commands::snapshot::snapshot_list_files,
+            commands::snapshot::snapshot_tag,
+            commands::snapshot::snapshot_list_tags,
+            commands::snapshot::snapshot_read_file,
+            // --- v1.8.0: hashing / zip ---
+            commands::fsutil::fs_cancel,
+            commands::fsutil::fs_hash_file,
+            commands::fsutil::fs_hash_tree,
+            commands::fsutil::fs_compare_trees,
+            commands::fsutil::zip_create,
+            commands::fsutil::zip_extract,
+            // --- v1.8.0: terminal audit ---
+            commands::terminal::audit::terminal_audit_list,
+            // --- v1.8.0: guarded SSH terminal + exec ---
+            commands::terminal::pty::terminal_open,
+            commands::terminal::pty::terminal_write,
+            commands::terminal::pty::terminal_resize,
+            commands::terminal::pty::terminal_close,
+            commands::terminal::pty::terminal_set_policy,
+            commands::terminal::pty::terminal_list,
+            commands::terminal::exec::exec_run,
+            commands::terminal::exec::exec_cancel
         ])
         .run(tauri::generate_context!())
         .expect("error while running nora desktop application");

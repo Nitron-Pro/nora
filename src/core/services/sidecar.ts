@@ -130,8 +130,8 @@ export const SidecarService = {
   /**
    * Retrieve standard directories used by Nora for sidecars and data:
    * - exe_dir: Directory where the main executable resides (for portable mode)
-   * - app_local_data_dir / suggested_bin_dir: %LOCALAPPDATA%/com.app/bin/
-   * - app_data_dir: %APPDATA%/com.app/
+   * - app_local_data_dir / suggested_bin_dir: <exe_dir>/bin (portable; never AppData)
+   * - app_data_dir: <exe_dir>/nora-data (legacy key, portable)
    * - resource_dir: Bundled resources directory
    */
   async getSidecarDirectories(): Promise<Record<string, string>> {

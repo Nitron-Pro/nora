@@ -11,6 +11,28 @@
 
 ---
 
+## روش پیشنهادی از v1.8.0: `node scripts/sync-core.mjs`
+
+یک دستور واحد جای `git checkout` دستی را می‌گیرد و مشکلات آن را ندارد:
+
+```bash
+git fetch core            # (خود اسکریپت هم fetch می‌کند)
+node scripts/sync-core.mjs --dry-run   # پیش‌نمایش
+node scripts/sync-core.mjs             # اعمال
+npm install && npm run build && (cd src-tauri && cargo check)
+git add -A && git commit -m "chore: sync core <version>"
+```
+
+- لیست مسیرهای هسته از `core-manifest.json` **خودِ هستهٔ جدید** خوانده می‌شود (`src/app/` هرگز در آن نیست).
+- فایل‌هایی که در هسته حذف شده‌اند از فرزند هم حذف می‌شوند.
+- `package.json` ادغام می‌شود (اسکریپت‌ها و وابستگی‌های هسته، وابستگی‌های اختصاصی فرزند حفظ می‌شود). `src-tauri/Cargo.toml`: بخش `[package]` فرزند حفظ می‌شود و هر چیز بعد از خط `# --- child-app deps ---` (در `[dependencies]`) نگه داشته می‌شود؛ پس crateهای اضافی فرزند را زیر همین خط بگذارید.
+- `src-tauri/icons`, `src-tauri/bin`, `tauri.conf.json` و `Cargo.lock` فرزند دست‌نخورده می‌مانند. بعد از sync اگر هسته فیلد جدیدی در `tauri.conf.json` لازم داشت (مثلاً `dragDropEnabled`) در changelog هسته ذکر می‌شود.
+- نسخهٔ هسته: `src/core/version.ts` (`CORE_VERSION`) و `core-manifest.json`. نسخهٔ اپ (`APP_CONFIG.version`) مستقل است.
+- بعد از اولین sync به 1.8.0 مطمئن شوید `scripts/check-portable.mjs` در `package.json` فرزند آمده و بیلد را رد نمی‌کند؛ اگر کد فرزند از مسیرهای AppData/temp استفاده می‌کرد باید اصلاح شود (جزئیات: `docs/PORTABLE_STORAGE.md`).
+- قدیمی: `scripts/sync-core.ps1` (کپی ساده، منسوخ).
+
+---
+
 ## روش استاندارد گیت: Selective Checkout (روش مصوب شماره ۱)
 
 در این روش، پروژه فرزند دارای یک **مخزن گیت محلی کاملاً مستقل** است و پروژه بویلرپلیت مادر (`nora`) تنها به عنوان یک ریموت محلی (Local Remote) فقط‌خواندنی به آن متصل می‌شود. از آنجا که به جای دستور `merge` از دستور `checkout -- path` استفاده می‌شود، هیچ تداخل شاخه‌ای (Conflict) رخ نخواهد داد و **فقط فایل‌های هسته** بدون آسیب رساندن به `src/app/` استخراج و اعمال می‌گردند.
@@ -42,6 +64,7 @@ git fetch core
 ```bash
 git checkout core/main -- src/core src/components/ui src/index.css src-tauri .cursor docs scripts package.json
 ```
+> ⚠️ این روش دستی قدیمی است و `Cargo.toml`/`icons`/`tauri.conf.json` فرزند را بازنویسی می‌کند. از v1.8.0 `node scripts/sync-core.mjs` را ترجیح دهید.
 
 #### چرا این دستور ۱۰۰٪ ایمن و بدون تداخل است؟
 1. **عدم انجام ادغام (No Merge):** دستور `checkout -- path` یک دستور Copy هوشمند بر مبنای Git Tree است و شاخه‌ها یا کامیت‌های دو پروژه را ادغام نمی‌کند تا کانفلیکتی رخ دهد.

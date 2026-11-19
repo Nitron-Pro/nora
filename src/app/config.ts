@@ -45,8 +45,8 @@ export interface AppConfig {
 export const APP_CONFIG: AppConfig = {
   appName: "Nora Base",
   appId: "com.nora.base",
-  version: "1.7.0",
-  coreVersion: "1.7.0",
+  version: "1.8.0",
+  coreVersion: "1.8.0",
   defaultLanguage: "en",
   defaultTheme: "dark",
   enableTray: true,
@@ -99,6 +99,10 @@ export const APP_CONFIG: AppConfig = {
         { id: "history-tasks", label: "History Archive", icon: "Archive", path: "/tasks/history" },
       ],
     },
+    // Dev-only manual test page for core IPC capabilities (vault, remote, transfers, snapshots...).
+    ...(import.meta.env.DEV
+      ? [{ id: "core-lab", label: "Core Lab", icon: "Server", path: "/lab" }]
+      : []),
     {
       id: "settings",
       label: "Settings",

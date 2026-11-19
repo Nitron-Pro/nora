@@ -18,6 +18,9 @@ alwaysApply: true
 - **اکیداً ممنوع:** هیچ نرم‌افزاری حق ندارد در درایو ویندوز (درایو C)، پوشه‌های `%APPDATA%`، `%LOCALAPPDATA%`، `%TEMP%` یا مسیرهای عمومی سیستم فایل، پایگاه‌داده، لاگ یا کش بنویسد.
 - تمام ذخیره‌سازی‌ها (دیتابیس SQLite، لاگ‌ها، باینری‌های استخراج‌شده سایدکار و فایل‌های موقت) باید **صرفاً در محل نصب یا پوشه کنار فایل اجرایی (.exe)** انجام شود (`PORTABLE_APP_DIR` یا `exe_dir`).
 - در صورت اجرای پرتابل از روی فلش یا درایوهای دیگر، نرم‌افزار باید ۱۰۰٪ خودکفا باشد و هیچ فایلی در درایو C به جا نگذارد.
+- **مسیرهای ویندوزی ممنوع:** استفاده از `app_data_dir`، `app_local_data_dir`، `app_config_dir`، `app_cache_dir`، `std::env::temp_dir`، کرِیت‌های `dirs`/`directories`، متغیرهای `APPDATA`/`TEMP`/`USERPROFILE` و مسیرهای ثابت `C:\` ممنوع است. فقط `crate::portable::data_dir()` / `data_subdir("name")` (پوشه `nora-data/` کنار exe) مجاز است. اگر پوشه exe قابل‌نوشتن نباشد خطا برمی‌گردد و هرگز به درایو C fallback نمی‌شود.
+- داده‌های WebView2 (localStorage و کش) با `portable::init_webview_data_dir()` به `nora-data/webview` منتقل می‌شوند.
+- اسکریپت `scripts/check-portable.mjs` (در `prebuild`/`predev` و CI) این قانون را خودکار بررسی می‌کند. استثنای بازبینی‌شده فقط با کامنت `portable-allow` در همان خط.
 
 ## ۳. مدیریت و مانیتورینگ ایزوله‌شده پروسس‌ها و کران‌جاب‌ها (Process Isolation)
 - برای اجرای انجین‌های جانبی (پایتون، C++، Go، نود) منحصراً از `SidecarService` استفاده شود.
@@ -46,7 +49,8 @@ alwaysApply: true
 
 ## ۷. استراتژی به‌روزرسانی هسته (Core Update Rule)
 - در پروژه‌های فرزند مشتق‌شده از نورا، هرگز نباید `git merge` یا `git pull` عمومی از مخزن مادر اجرا شود؛ زیرا پوشه `src/app/` نرم‌افزار فرزند نباید بازنویسی شود.
-- دستور مجاز برای آپدیت هسته طبق `docs/UPDATING_CORE.md`:
+- دستور ترجیحی از v1.8.0: `node scripts/sync-core.mjs` (لیست مسیرها از `core-manifest.json`؛ `package.json` و `Cargo.toml` فرزند ادغام می‌شوند).
+- دستور دستی قدیمی طبق `docs/UPDATING_CORE.md`:
   `git checkout core/main -- src/core src/components/ui src/index.css src-tauri .cursor docs scripts package.json`
 
 ## ۸. حفظ پیوستگی، چنج‌لاگ و مستندات (Docs-First Git)

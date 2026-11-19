@@ -2,3 +2,8 @@ pub mod serial;
 pub mod system;
 pub mod printer;
 pub mod sidecar;
+pub mod remote;
+pub mod terminal;
+pub mod vault;
+pub mod snapshot;
+pub mod fsutil;

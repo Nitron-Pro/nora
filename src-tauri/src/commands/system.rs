@@ -22,5 +22,6 @@ use tauri::State;
 #[tauri::command]
 pub fn exit_app(app_handle: tauri::AppHandle, sidecar_state: State<'_, SidecarManager>) {
     cleanup_all_sidecars(&sidecar_state);
+    crate::commands::terminal::cleanup_all();
     app_handle.exit(0);
 }

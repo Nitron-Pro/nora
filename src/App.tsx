@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { CustomTitlebar } from "@/core/components/CustomTitlebar";
 import { HeaderActions } from "@/core/components/HeaderActions";
 import { AppSidebar } from "@/core/components/AppSidebar";
@@ -11,9 +11,15 @@ import { Dashboard } from "@/app/pages/Dashboard";
 import { Settings } from "@/app/pages/Settings";
 import { TaskQueue } from "@/app/pages/TaskQueue";
 import { HardwareTest } from "@/app/pages/HardwareTest";
+import { startTransferTaskBridge } from "@/core/services/transferTasks";
 import { useSettingsStore } from "@/core/store/settingsStore";
 import { useUpdaterStore } from "@/core/store/updaterStore";
 import { SystemService } from "@/core/services/system";
+
+// Dev-only manual test page; the dynamic import is dropped from production builds.
+const CoreLab = import.meta.env.DEV
+  ? lazy(() => import("@/app/pages/CoreLab").then((m) => ({ default: m.CoreLab })))
+  : null;
 
 export function App() {
   const [currentPath, setCurrentPath] = useState("/");
@@ -32,6 +38,9 @@ export function App() {
 
     // 2. Perform daily background update check (once per 24 hours)
     checkDailyUpdateIfNeeded();
+
+    // 3. Show remote transfers in the Task Queue pages
+    return startTransferTaskBridge();
   }, [checkChangelogOnStartup, checkDailyUpdateIfNeeded]);
 
   const renderContent = () => {
@@ -43,6 +52,14 @@ export function App() {
       case "/tasks/queue":
       case "/tasks/history":
         return <TaskQueue />;
+      case "/lab":
+        return CoreLab ? (
+          <Suspense fallback={null}>
+            <CoreLab />
+          </Suspense>
+        ) : (
+          <Dashboard />
+        );
       case "/hardware":
       case "/hardware/serial":
       case "/hardware/printers/thermal":

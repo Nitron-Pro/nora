@@ -98,10 +98,13 @@ interface TaskState {
   deleteTask: (taskId: string) => void;
   clearHistory: () => void;
   setSelectedDateFilter: (date: string) => void;
+  // External (non-scheduled) tasks, e.g. remote transfers. Additive API; never persisted.
+  upsertExternalTask: (task: Pick<ScheduledTask, "id" | "title" | "status"> & Partial<ScheduledTask>) => void;
+  finishExternalTask: (id: string, status: "success" | "failed", details?: string, durationMs?: number) => void;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
-  tasks: loadFromStorage<ScheduledTask[]>(STORAGE_TASKS, INITIAL_TASKS),
+  tasks: loadFromStorage<ScheduledTask[]>(STORAGE_TASKS, INITIAL_TASKS).filter((t) => !t.external),
   logs: loadFromStorage<TaskExecutionLog[]>(STORAGE_LOGS, INITIAL_LOGS),
   selectedDateFilter: "all",
 
@@ -128,6 +131,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   },
 
   runTaskNow: async (taskId) => {
+    if (get().tasks.find((t) => t.id === taskId)?.external) return; // driven by its own source
     // 1. Mark task as running
     set((state) => ({
       tasks: state.tasks.map((t) =>
@@ -181,4 +185,43 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   },
 
   setSelectedDateFilter: (date) => set({ selectedDateFilter: date }),
+
+  upsertExternalTask: (task) => {
+    set((state) => {
+      const exists = state.tasks.some((t) => t.id === task.id);
+      if (exists) {
+        return { tasks: state.tasks.map((t) => (t.id === task.id ? { ...t, ...task, external: true } : t)) };
+      }
+      const created: ScheduledTask = {
+        appId: APP_CONFIG.appId,
+        scheduledTime: "",
+        interval: "once",
+        category: "network",
+        createdAt: new Date().toISOString(),
+        ...task,
+        external: true,
+      };
+      return { tasks: [created, ...state.tasks] };
+    });
+  },
+
+  // Removes the live task and appends an execution log entry (shown in Today / History).
+  finishExternalTask: (id, status, details, durationMs = 0) => {
+    const task = get().tasks.find((t) => t.id === id);
+    if (!task) return;
+    const log: TaskExecutionLog = {
+      id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      taskId: id,
+      appId: APP_CONFIG.appId,
+      taskTitle: task.title,
+      executedAt: new Date().toLocaleTimeString(),
+      date: new Date().toISOString().split("T")[0],
+      durationMs,
+      status,
+      details,
+    };
+    const logs = [log, ...get().logs].slice(0, 500);
+    localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
+    set({ tasks: get().tasks.filter((t) => t.id !== id), logs });
+  },
 }));

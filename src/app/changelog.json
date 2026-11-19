@@ -1,5 +1,23 @@
 [
   {
+    "version": "1.8.0",
+    "date": "2026-11-19",
+    "title": "Nora Core v1.8.0 - Remote FTP/SFTP, guarded SSH terminal, Vault, Snapshots & enforced Zero C-Drive",
+    "highlights": [
+      "Remote layer: FTP/FTPS/SFTP behind one API (list/stat/download/upload/mkdir/rename/delete/chmod/small-file r/w), Persian filenames, resume, keepalive + auto-reconnect, SSH host-key (known_hosts next to exe) trust flow, capabilities per connection",
+      "Transfer queue with progress events, cancel, concurrency, recursive folders; bridged into the Task Queue (src/core/services/transferTasks.ts)",
+      "Guarded SSH terminal (PTY) and exec: deny-by-default CommandGuard enforced in Rust, injection-safe parser, keystroke LineTracker, persistent audit log (nora-data/logs)",
+      "Encrypted Vault (Argon2id + XChaCha20-Poly1305): frontend only sees ids; secrets never leave Rust",
+      "Local git snapshot engine (libgit2 bundled, no git install): commit file sets, diff, restore, tags, 'file did not exist' support",
+      "fsutil: sha256 for files/trees, tree compare, zip/unzip with zip-slip protection",
+      "New UI components: Terminal (xterm), DiffViewer (split/unified, RTL-safe), VirtualFileList + FileDualPane + PathBar (100k rows, drag & drop)",
+      "Sidebar icon registry: registerIcons() or optional src/app/icons.ts; Server, Package, Rocket, FolderOpen, SquareTerminal, History built in",
+      "Zero C-Drive is now enforced: crate::portable (nora-data next to exe), WebView2 data moved beside the exe, AppData fallbacks removed, scripts/check-portable.mjs runs in predev/prebuild/CI",
+      "coreVersion (src/core/version.ts, core-manifest.json) and unified `node scripts/sync-core.mjs` that merges package.json/Cargo.toml and removes deleted core files; main window uses dragDropEnabled:false",
+      "CI workflow core-ci.yml; dev-only Core Lab page (/lab) to test every capability by hand"
+    ]
+  },
+  {
     "version": "1.7.0",
     "date": "2026-10-13",
     "title": "Nora Core v1.7.0 - Separate Persian/English fonts and Windows toast test",
