@@ -94,7 +94,8 @@ const FA_FONTS: { id: FaFont; label: TranslationKey; family: string }[] = [
   { id: "vazirmatn", label: "fontVazir", family: '"Vazirmatn", Tahoma, sans-serif' },
   { id: "estedad", label: "fontEstedad", family: '"Estedad", Tahoma, sans-serif' },
   { id: "noto-arabic", label: "fontNoto", family: '"Noto Sans Arabic", Tahoma, sans-serif' },
-  { id: "plex-arabic", label: "fontPlex", family: '"IBM Plex Sans Arabic", Tahoma, sans-serif' },
+  { id: "dastkhat", label: "fontDastkhat", family: '"Dastkhat", Tahoma, sans-serif' },
+  { id: "dastkhat-fanum", label: "fontDastkhatNum", family: '"Dastkhat FaNum", "Dastkhat", Tahoma, sans-serif' },
 ];
 const EN_FONTS: { id: EnFont; label: TranslationKey; family: string }[] = [
   { id: "inter", label: "fontInter", family: '"Inter", "Segoe UI", sans-serif' },
@@ -209,7 +210,7 @@ export const SettingsPage = () => {
                     <Tile key={f.id} active={faFont === f.id} onClick={() => setFaFont(f.id)} label={t(f.label)}>
                       <p className="text-[11px] text-muted-foreground">{t(f.label)}</p>
                       <p className="text-base mt-1 text-foreground truncate" dir="rtl" style={{ fontFamily: f.family }}>
-                        {t("sampleFa")}
+                        {f.id === "dastkhat-fanum" ? t("sampleFa").replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))) : t("sampleFa")}
                       </p>
                     </Tile>
                   ))}

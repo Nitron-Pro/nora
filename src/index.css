@@ -1,3 +1,19 @@
+/* Dastkhat (SIL OFL 1.1, based on Vazirmatn) - bundled offline. License: src/core/assets/fonts/dastkhat/OFL.txt */
+@font-face {
+  font-family: "Dastkhat";
+  src: url("./core/assets/fonts/dastkhat/Dastkhat-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Dastkhat FaNum";
+  src: url("./core/assets/fonts/dastkhat/DastkhatFaNum-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -82,7 +98,8 @@ html[data-fa-font="estedad"] { --font-fa: "Estedad", Tahoma, sans-serif; }
 html[data-en-font="inter"] { --font-en: "Inter", "Segoe UI", sans-serif; }
 html[data-en-font="dm-sans"] { --font-en: "DM Sans", "Segoe UI", sans-serif; }
 html[data-fa-font="noto-arabic"] { --font-fa: "Noto Sans Arabic", Tahoma, sans-serif; }
-html[data-fa-font="plex-arabic"] { --font-fa: "IBM Plex Sans Arabic", Tahoma, sans-serif; }
+html[data-fa-font="dastkhat"] { --font-fa: "Dastkhat", Tahoma, sans-serif; }
+html[data-fa-font="dastkhat-fanum"] { --font-fa: "Dastkhat FaNum", "Dastkhat", Tahoma, sans-serif; }
 html[data-en-font="manrope"] { --font-en: "Manrope", "Segoe UI", sans-serif; }
 html[data-en-font="jakarta"] { --font-en: "Plus Jakarta Sans", "Segoe UI", sans-serif; }
 

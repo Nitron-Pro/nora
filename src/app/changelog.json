@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.11.0",
+    "date": "2026-11-20",
+    "title": "Nora Core v1.11.0 - Dastkhat Persian font",
+    "highlights": [
+      "IBM Plex Sans Arabic replaced by Dastkhat 1.210 (SIL OFL 1.1, based on Vazirmatn), bundled offline in src/core/assets/fonts/dastkhat/ with OFL.txt and FONTLOG.txt; @font-face defined in src/index.css",
+      "Two options: Dastkhat and Dastkhat (Persian digits, latin digits render as Persian). Dastkhat is now the default Persian font for fresh installs",
+      "Saved fa font value plex-arabic migrates to dastkhat automatically; @fontsource/ibm-plex-sans-arabic removed from package.json (sync-core removes it only if the child drops it; harmless to keep)",
+      "License notice added to README"
+    ]
+  },
+  {
     "version": "1.10.0",
     "date": "2026-11-20",
     "title": "Nora Core v1.10.0 - Local text file IO for editors",
