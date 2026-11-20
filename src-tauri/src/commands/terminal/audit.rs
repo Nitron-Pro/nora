@@ -30,6 +30,8 @@ const MAX_LINE_CHARS: usize = 4096;
 pub enum Source {
     Pty,
     Exec,
+    /// Local file writes via fsio (fs_write_text).
+    Fs,
 }
 
 impl Source {
@@ -37,6 +39,7 @@ impl Source {
         match self {
             Source::Pty => "pty",
             Source::Exec => "exec",
+            Source::Fs => "fs",
         }
     }
 }

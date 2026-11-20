@@ -148,6 +148,10 @@ pub fn run() {
             commands::fsutil::fs_compare_trees,
             commands::fsutil::zip_create,
             commands::fsutil::zip_extract,
+            // --- v1.9.0: local text file io ---
+            commands::fsio::fs_stat,
+            commands::fsio::fs_read_text,
+            commands::fsio::fs_write_text,
             // --- v1.8.0: terminal audit ---
             commands::terminal::audit::terminal_audit_list,
             // --- v1.8.0: guarded SSH terminal + exec ---

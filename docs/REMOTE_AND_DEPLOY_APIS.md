@@ -64,6 +64,18 @@ DialogService.pickFiles({ multiple?, filters?: {name, extensions[]}[], title?, d
 ```
 مسیرها مطلق و همیشه با `/` برمی‌گردند (مناسب `transfer_enqueue.local_path`, `zip_create`, `snapshot_*`). دیالوگ بومی ویندوز فایلی در AppData/Temp توسط برنامه نمی‌نویسد (فقط ویندوز لیست «اخیر» خودش را در رجیستری نگه می‌دارد)؛ `check-portable` تداخلی ندارد. پس فرمان‌های جایگزین مرور محلی لازم نشد.
 
+## ۶‌ج. IO متن فایل لوکال برای ادیتور (`fs_stat`, `fs_read_text`, `fs_write_text`)
+سرویس TS: `src/core/services/fsio.ts` (`FsIoService`). نام فیلدها camelCase و `mtime` بر حسب میلی‌ثانیه است.
+```ts
+FsIoService.stat(path)                    -> { exists, isDir, size, mtime }
+FsIoService.readText(path, maxBytes?)     -> { size, mtime, binary, truncated, text|null, encoding: "utf8"|"utf16le"|"utf16be"|null, hasBom, base64 }
+FsIoService.writeText({ path, content, encoding?: "utf8"|"base64"|"utf16le"|"utf16be", bom?, expectedMtime?, expectedSize?, userLabel? }) -> { size, mtime }
+```
+- خواندن: پیش‌فرض ۵MiB، سقف سخت ۳۲MiB (`TOO_LARGE:`)، باینری = NUL در ۸KB اول (بدون BOM)، UTF-8 نامعتبر ⇒ `text:null` (از `base64` استفاده کن)، برش وسط کاراکتر چندبایتی ترمیم می‌شود. `base64` همیشه بایت‌های خوانده‌شده را دارد.
+- نوشتن: اتمیک (فایل موقت `.<name>.nora-tmp-*` **کنار مقصد** + fsync + rename؛ هرگز Temp سیستم). با `expectedMtime`/`expectedSize` (مقدار آخرین read/write) اگر فایل عوض شده یا حذف شده باشد خطای `CONFLICT:`. حفظ EOL با UI. سقف ۳۲MiB. هر نوشتن (موفق/ردشده) در لاگ audit با `source:"fs"` ثبت می‌شود.
+- قواعد Rust: فقط مسیر مطلق درایو (`X:\...` یا `X:/...`)؛ رد UNC (`\server`) و پیشوندهای `\?\` و `\.\`، `..`، `:` (ADS)، نام‌های رزرو (CON/NUL/COM1...)، نام با نقطه/فاصلهٔ انتهایی؛ symlink/junction/درایو map‌شده **دنبال نمی‌شود** (`FORBIDDEN:`)؛ فقط فایل معمولی (`NOT_FILE:`)؛ نوشتن در Windows/Program Files/ProgramData/Recovery/... و در `nora-data` ممنوع؛ خواندن `nora-data/vault` ممنوع.
+- خطاها: `INVALID: NOT_FOUND: NOT_FILE: FORBIDDEN: TOO_LARGE: CONFLICT:` (در TS: `isConflict(e)`).
+
 ## ۷. ترمینال SSH و اجرای دستور با گارد
 سرویس TS: `src/core/services/terminal.ts` (`TerminalService`). **پیش‌فرض: همه‌چیز ممنوع.** گارد فقط در Rust اجرا می‌شود و فرانت‌اند راهی برای نوشتن مستقیم در کانال ندارد.
 

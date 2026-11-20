@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/TailwindCSS-v3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
   <img src="https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows" />
-  <img src="https://img.shields.io/badge/Version-1.9.0-0F172A?style=for-the-badge" alt="Version 1.9.0" />
+  <img src="https://img.shields.io/badge/Version-1.10.0-0F172A?style=for-the-badge" alt="Version 1.10.0" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Independent-success?style=for-the-badge" alt="Offline-First" />
 </p>
 
@@ -51,6 +51,7 @@
 - 🌐 **لایهٔ اتصال راه‌دور (v1.8.0):** FTP/FTPS/SFTP با API واحد، صف انتقال با progress (یکپارچه با Task Queue)، تأیید fingerprint سرور SSH، نام فایل فارسی. [جزئیات](docs/REMOTE_AND_DEPLOY_APIS.md)
 - 🔐 **ترمینال SSH با گارد + Vault:** پیش‌فرض همه‌چیز ممنوع؛ whitelist دستورات در Rust اعمال می‌شود و همهٔ دستورات audit می‌شوند. رمزها در Vault رمزنگاری‌شده (Argon2id + XChaCha20) می‌مانند و UI فقط idها را می‌بیند.
 - 📸 **Snapshot گیت محلی و ابزار فایل:** libgit2 همراه برنامه (بدون نصب git)، hash/compare درخت پوشه‌ها، zip/unzip ایمن.
+- 📝 **IO فایل محلی برای ادیتور:** `fs_stat` / `fs_read_text` / `fs_write_text` (نوشتن اتمیک، تشخیص CONFLICT، رد symlink/UNC/مسیرهای سیستمی) و `DialogService` برای انتخاب فایل/پوشه.
 - 🧱 **کامپوننت‌های UI:** Terminal (xterm)، DiffViewer، لیست مجازی فایل با drag & drop دو پنلی، رجیستری آیکون منو (`registerIcons`).
 - 🧰 **پوشه `tools/` (خارج از گیت):** روی ویندوز لانچر اجباری `tools/build-app.bat` است (دابل‌کلیک). فقط `.ps1` کافی نیست. ایجنت بیلد پروداکشن را اجرا نمی‌کند مگر با دستور صریح کاربر.
 - 🔤 **فونت جدا برای فارسی و انگلیسی:** چهار فونت فارسی (وزیرمتن، استعداد، نوتو سنس عربی، IBM Plex Sans Arabic) و چهار فونت انگلیسی (Inter، DM Sans، Manrope، Plus Jakarta Sans) با پیش‌نمایش زنده؛ همه آفلاین.
@@ -136,8 +137,8 @@ npm run tauri build
 
 خروجی‌ها پس از کامپایل در مسیر زیر تولید می‌شوند:
 - `src-tauri/target/release/nora.exe` (فایل پرتابل)
-- `src-tauri/target/release/bundle/nsis/Nora_1.9.0_x64-setup.exe` (فایل نصبی ویزاردی)
-- `src-tauri/target/release/bundle/msi/Nora_1.9.0_x64_en-US.msi` (فایل نصبی سازمانی)
+- `src-tauri/target/release/bundle/nsis/Nora_1.10.0_x64-setup.exe` (فایل نصبی ویزاردی)
+- `src-tauri/target/release/bundle/msi/Nora_1.10.0_x64_en-US.msi` (فایل نصبی سازمانی)
 
 > ایجنت‌ها نباید `tauri build` را خودسرانه اجرا کنند مگر کاربر صریحاً دستور دهد.
 

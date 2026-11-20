@@ -1,5 +1,5 @@
 {
-  "coreVersion": "1.9.0",
+  "coreVersion": "1.10.0",
   "description": "Paths owned by the Nora core. Child apps receive these via `node scripts/sync-core.mjs`. src/app/ is NEVER listed.",
   "paths": [
     "src/core",

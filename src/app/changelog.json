@@ -1,5 +1,16 @@
 [
   {
+    "version": "1.10.0",
+    "date": "2026-11-20",
+    "title": "Nora Core v1.10.0 - Local text file IO for editors",
+    "highlights": [
+      "New IPC fs_stat, fs_read_text, fs_write_text + FsIoService (src/core/services/fsio.ts) for in-app editors such as Monaco",
+      "Reads: default 5 MiB / hard 32 MiB, binary detection, UTF-8/UTF-16/BOM detection, base64 always returned, regular files only",
+      "Writes: atomic (temp file in the same folder + rename, no system Temp), optimistic locking via expectedMtime/expectedSize (CONFLICT:), utf8/utf16/base64, BOM option, logged to the audit log (source 'fs')",
+      "Hard rules in Rust: absolute drive paths only, no UNC/device paths, no '..', no reserved names, symlinks/junctions never followed, system folders (Windows, Program Files, ProgramData...) and nora-data are write-protected, vault folder unreadable"
+    ]
+  },
+  {
     "version": "1.9.0",
     "date": "2026-11-19",
     "title": "Nora Core v1.9.0 - Modern Settings, more fonts, larger text sizes",
