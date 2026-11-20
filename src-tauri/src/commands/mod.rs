@@ -8,3 +8,4 @@ pub mod vault;
 pub mod snapshot;
 pub mod fsutil;
 pub mod fsio;
+pub mod fsops;

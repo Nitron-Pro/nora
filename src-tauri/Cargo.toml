@@ -1,6 +1,6 @@
 [package]
 name = "nora"
-version = "1.11.0"
+version = "1.12.0"
 description = "Modular offline-first desktop boilerplate with Tauri 2.0"
 authors = ["Nora Team"]
 edition = "2021"
@@ -48,3 +48,7 @@ rustls = { version = "0.23.46", default-features = false, features = ["ring", "s
 webpki-roots = "1.0.12"
 rustls-pki-types = "1.16.0"
 tauri-plugin-dialog = "2.8.4"
+trash = "5.4.0"
+
+[target."cfg(windows)".dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Storage_FileSystem", "Win32_Foundation"] }

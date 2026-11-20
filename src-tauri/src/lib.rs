@@ -152,6 +152,13 @@ pub fn run() {
             commands::fsio::fs_stat,
             commands::fsio::fs_read_text,
             commands::fsio::fs_write_text,
+            // --- local file manager ops ---
+            commands::fsops::fs_list_drives,
+            commands::fsops::fs_list_dir,
+            commands::fsops::fs_mkdir,
+            commands::fsops::fs_rename,
+            commands::fsops::fs_copy,
+            commands::fsops::fs_delete,
             // --- v1.8.0: terminal audit ---
             commands::terminal::audit::terminal_audit_list,
             // --- v1.8.0: guarded SSH terminal + exec ---

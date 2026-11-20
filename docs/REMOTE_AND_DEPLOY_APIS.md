@@ -76,6 +76,20 @@ FsIoService.writeText({ path, content, encoding?: "utf8"|"base64"|"utf16le"|"utf
 - قواعد Rust: فقط مسیر مطلق درایو (`X:\...` یا `X:/...`)؛ رد UNC (`\server`) و پیشوندهای `\?\` و `\.\`، `..`، `:` (ADS)، نام‌های رزرو (CON/NUL/COM1...)، نام با نقطه/فاصلهٔ انتهایی؛ symlink/junction/درایو map‌شده **دنبال نمی‌شود** (`FORBIDDEN:`)؛ فقط فایل معمولی (`NOT_FILE:`)؛ نوشتن در Windows/Program Files/ProgramData/Recovery/... و در `nora-data` ممنوع؛ خواندن `nora-data/vault` ممنوع.
 - خطاها: `INVALID: NOT_FOUND: NOT_FILE: FORBIDDEN: TOO_LARGE: CONFLICT:` (در TS: `isConflict(e)`).
 
+## ۶‌د. عملیات فایل‌منیجر لوکال (`fs_list_drives`, `fs_list_dir`, `fs_mkdir`, `fs_rename`, `fs_copy`, `fs_delete`)
+سرویس TS: `FsOpsService` در `src/core/services/fsio.ts`. همان قواعد امنیتی ۶‌ج (مسیر مطلق، بدون UNC/device/`..`، symlink، مسیرهای سیستمی و `nora-data`) به‌علاوهٔ: پوشهٔ خود برنامه و والدهایش قابل حذف/جابه‌جایی نیستند؛ ریشهٔ درایو و پوشه‌های سطح‌اول سیستمی دست‌نخورده‌اند؛ هر تغییر در audit (`source:"fs"`) ثبت می‌شود. خطاها: `INVALID: NOT_FOUND: NOT_FILE: EXISTS: FORBIDDEN: UNSUPPORTED:` و `cancelled`.
+```ts
+FsOpsService.listDrives()                         -> [{letter, path:"D:/", kind:"fixed|removable|network|cdrom|ramdisk|unknown"}]
+FsOpsService.listDir(path, maxEntries?)           -> { entries:[{name,isDir,isSymlink,size,mtime}], truncated }   // پوشه‌ها اول؛ پیش‌فرض ۲۰٬۰۰۰، سقف ۱۰۰٬۰۰۰
+FsOpsService.mkdir(path, recursive?)              -> void     // EXISTS: اگر باشد (با recursive روی پوشهٔ موجود موفق است)
+FsOpsService.rename(from, to)                     -> void     // فقط همان درایو؛ EXISTS: اگر مقصد باشد؛ پوشه داخل خودش ممنوع
+FsOpsService.copy({from,to,overwrite?,recursive?,opId?}) -> { opId, files, bytes, skipped }
+FsOpsService.delete({path, recursive?, toRecycleBin? /*پیش‌فرض true*/}) -> void
+```
+- `copy`: `to` مسیر کامل مقصد است. پوشه نیاز به `recursive` دارد؛ مقصد موجود بدون `overwrite` ⇒ `EXISTS:`؛ با `overwrite` پوشه ادغام و فایل‌ها بازنویسی می‌شوند. فایل‌ها اتمیک (temp کنار مقصد) کپی می‌شوند. symlink/junction داخل منبع **رد می‌شود** و در `skipped` شمرده می‌شود. پیشرفت با رویداد `fsutil://progress` `{op_id,done,total,phase:"copy"}` و لغو با `FsUtilService.cancel(opId)` (خطای `cancelled`؛ فایل‌های کپی‌شدهٔ قبلی می‌مانند، temp حذف می‌شود).
+- `delete`: به‌صورت پیش‌فرض به سطل بازیافت می‌رود (`trash`/shell)، چیزی در AppData/Temp نوشته نمی‌شود. فقط درایو Fixed سطل دارد؛ درایو قابل‌حمل/شبکه ⇒ `UNSUPPORTED:` مگر `toRecycleBin:false` (حذف دائمی). پوشهٔ غیرخالی بدون `recursive` رد می‌شود. توجه: ویندوز فایل‌های بزرگ‌تر از ظرفیت سطل را ممکن است دائمی حذف کند.
+- `listDir` پیوندها را فهرست می‌کند ولی دنبال نمی‌کند (`isSymlink:true`).
+
 ## ۷. ترمینال SSH و اجرای دستور با گارد
 سرویس TS: `src/core/services/terminal.ts` (`TerminalService`). **پیش‌فرض: همه‌چیز ممنوع.** گارد فقط در Rust اجرا می‌شود و فرانت‌اند راهی برای نوشتن مستقیم در کانال ندارد.
 

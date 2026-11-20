@@ -40,3 +40,29 @@ export const FsIoService = {
     userLabel?: string;
   }) => invoke<WriteResult>("fs_write_text", opts),
 };
+
+/* ------------------------------------------------------------------------------------------------
+ * Local file-manager operations (Rust: commands/fsops.rs). Same security rules as above.
+ * Errors: INVALID: NOT_FOUND: NOT_FILE: EXISTS: FORBIDDEN: UNSUPPORTED: and "cancelled".
+ * Progress/cancel are shared with fsutil: event `fsutil://progress` {op_id, done, total, phase:"copy"}
+ * (FsUtilService.onProgress) and FsUtilService.cancel(opId).
+ * ---------------------------------------------------------------------------------------------- */
+export interface DriveInfo { letter: string; /** "D:/" */ path: string; kind: "fixed" | "removable" | "network" | "cdrom" | "ramdisk" | "unknown" }
+export interface DirEntryInfo { name: string; isDir: boolean; /** symlink/junction: listed, never followed */ isSymlink: boolean; size: number; /** ms */ mtime: number }
+export interface ListDirResult { /** folders first, then files, case-insensitive */ entries: DirEntryInfo[]; truncated: boolean }
+export interface CopyResult { opId: string; files: number; bytes: number; /** symlinks/junctions skipped inside the source tree */ skipped: number }
+
+export const FsOpsService = {
+  listDrives: () => invoke<DriveInfo[]>("fs_list_drives"),
+  /** Default limit 20 000 entries, hard limit 100 000 (`truncated` tells you). */
+  listDir: (path: string, maxEntries?: number) => invoke<ListDirResult>("fs_list_dir", { path, maxEntries }),
+  mkdir: (path: string, recursive = false, userLabel?: string) => invoke<void>("fs_mkdir", { path, recursive, userLabel }),
+  /** Same drive only; rejects with EXISTS: if the target exists. */
+  rename: (from: string, to: string, userLabel?: string) => invoke<void>("fs_rename", { from, to, userLabel }),
+  /** `to` is the full target path (not its parent). Folders need recursive. Pass opId to follow progress / cancel. */
+  copy: (opts: { from: string; to: string; overwrite?: boolean; recursive?: boolean; opId?: string; userLabel?: string }) =>
+    invoke<CopyResult>("fs_copy", opts),
+  /** Moves to the Recycle Bin by default; permanent deletion only with toRecycleBin:false. */
+  delete: (opts: { path: string; recursive?: boolean; toRecycleBin?: boolean; userLabel?: string }) =>
+    invoke<void>("fs_delete", opts),
+};

@@ -1,5 +1,15 @@
 [
   {
+    "version": "1.12.0",
+    "date": "2026-11-20",
+    "title": "Nora Core v1.12.0 - Local file-manager operations",
+    "highlights": [
+      "New IPC fs_list_drives, fs_list_dir (lazy, sorted, capped, truncated flag), fs_mkdir, fs_rename, fs_copy (files/folders, progress + cancel via fsutil://progress and fs_cancel), fs_delete (Recycle Bin by default, permanent only with toRecycleBin:false) + FsOpsService in src/core/services/fsio.ts",
+      "Same Rust-enforced rules as fs_write_text, plus: app folder and its parents cannot be deleted/moved, drive roots and system folders untouchable, symlinks/junctions skipped or rejected, copy writes temp files beside the target, every change audited (source 'fs')",
+      "New Rust deps: trash (Recycle Bin), windows-sys (drive list/type)"
+    ]
+  },
+  {
     "version": "1.11.0",
     "date": "2026-11-20",
     "title": "Nora Core v1.11.0 - Dastkhat Persian font",

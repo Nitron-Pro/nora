@@ -125,7 +125,7 @@ pub fn validate_path(raw: &str) -> Result<PathBuf, String> {
     Ok(PathBuf::from(out))
 }
 
-fn strip_verbatim(p: &Path) -> String {
+pub(crate) fn strip_verbatim(p: &Path) -> String {
     let s = p.to_string_lossy().to_string();
     s.strip_prefix("\\\\?\\").unwrap_or(&s).to_string()
 }
@@ -135,7 +135,7 @@ fn same_path(a: &str, b: &str) -> bool {
 }
 
 /// Reject paths whose real location differs from the typed one (symlinks, junctions, subst/network maps).
-fn ensure_no_links(path: &Path) -> Result<(), String> {
+pub(crate) fn ensure_no_links(path: &Path) -> Result<(), String> {
     let canon = fs::canonicalize(path).map_err(|e| format!("INVALID: cannot resolve path: {e}"))?;
     let want = path.to_string_lossy();
     if !same_path(&strip_verbatim(&canon), &want) {
@@ -153,13 +153,13 @@ fn top_component(path: &Path) -> Option<String> {
     it.next().map(|c| c.as_os_str().to_string_lossy().to_ascii_lowercase())
 }
 
-fn under(path: &Path, base: &Path) -> bool {
+pub(crate) fn under(path: &Path, base: &Path) -> bool {
     let p = path.to_string_lossy().to_ascii_lowercase();
     let b = strip_verbatim(base).to_ascii_lowercase();
     p == b || p.starts_with(&format!("{}\\", b.trim_end_matches('\\')))
 }
 
-fn check_write_allowed(path: &Path) -> Result<(), String> {
+pub(crate) fn check_write_allowed(path: &Path) -> Result<(), String> {
     if let Some(top) = top_component(path) {
         if PROTECTED_TOP.contains(&top.as_str()) {
             return Err(format!("FORBIDDEN: writing to system location '{top}' is not allowed"));
@@ -173,7 +173,7 @@ fn check_write_allowed(path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn check_read_allowed(path: &Path) -> Result<(), String> {
+pub(crate) fn check_read_allowed(path: &Path) -> Result<(), String> {
     if let Ok(data) = crate::portable::data_dir() {
         if under(path, &data.join("vault")) {
             return Err("FORBIDDEN: the vault folder cannot be read from the UI".into());
@@ -182,7 +182,7 @@ fn check_read_allowed(path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn mtime_ms(meta: &fs::Metadata) -> u64 {
+pub(crate) fn mtime_ms(meta: &fs::Metadata) -> u64 {
     meta.modified()
         .ok()
         .and_then(|t| t.duration_since(UNIX_EPOCH).ok())

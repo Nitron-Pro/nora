@@ -37,30 +37,30 @@ fn gen_id() -> String {
     format!("op-{t}-{}", N.fetch_add(1, Ordering::Relaxed))
 }
 
-struct Op {
-    id: String,
+pub(crate) struct Op {
+    pub(crate) id: String,
     cancel: Arc<AtomicBool>,
     app: Option<AppHandle>,
     last: Instant,
-    done: u64,
-    total: u64,
+    pub(crate) done: u64,
+    pub(crate) total: u64,
 }
 
 impl Op {
-    fn new(app: Option<AppHandle>, op_id: Option<String>) -> Op {
+    pub(crate) fn new(app: Option<AppHandle>, op_id: Option<String>) -> Op {
         let id = op_id.filter(|s| !s.is_empty()).unwrap_or_else(|| gen_id());
         let cancel = Arc::new(AtomicBool::new(false));
         registry().lock().unwrap_or_else(|e| e.into_inner()).insert(id.clone(), cancel.clone());
         Op { id, cancel, app, last: Instant::now() - Duration::from_secs(1), done: 0, total: 0 }
     }
-    fn check(&self) -> Result<(), String> {
+    pub(crate) fn check(&self) -> Result<(), String> {
         if self.cancel.load(Ordering::Relaxed) {
             Err("cancelled".into())
         } else {
             Ok(())
         }
     }
-    fn emit(&mut self, phase: &str, force: bool) {
+    pub(crate) fn emit(&mut self, phase: &str, force: bool) {
         if !force && self.last.elapsed() < Duration::from_millis(100) {
             return;
         }
@@ -72,7 +72,7 @@ impl Op {
             );
         }
     }
-    fn add(&mut self, n: u64, phase: &str) -> Result<(), String> {
+    pub(crate) fn add(&mut self, n: u64, phase: &str) -> Result<(), String> {
         self.done += n;
         self.check()?;
         self.emit(phase, false);
@@ -97,6 +97,13 @@ pub async fn fs_cancel(op_id: String) -> Result<bool, String> {
         }
         None => false,
     })
+}
+
+#[cfg(test)]
+pub(crate) fn cancel_for_test(id: &str) {
+    if let Some(f) = registry().lock().unwrap().get(id) {
+        f.store(true, Ordering::Relaxed);
+    }
 }
 
 async fn run<T: Send + 'static>(f: impl FnOnce() -> Result<T, String> + Send + 'static) -> Result<T, String> {
