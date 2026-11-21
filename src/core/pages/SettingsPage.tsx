@@ -159,10 +159,14 @@ export const SettingsPage = () => {
             </div>
             <div className="flex flex-wrap items-center gap-2" dir="ltr">
               <Badge variant="outline" className="font-mono text-[11px] bg-background/50">{APP_CONFIG.appName}</Badge>
-              <Badge variant="outline" className="font-mono text-[11px] bg-background/50">v{APP_CONFIG.version}</Badge>
-              <Badge variant="outline" className="font-mono text-[11px] bg-background/50 gap-1">
-                <Cpu className="w-3 h-3" /> core {CORE_VERSION}
-              </Badge>
+              {APP_CONFIG.showVersionBadges !== false && (
+                <>
+                  <Badge variant="outline" className="font-mono text-[11px] bg-background/50">v{APP_CONFIG.version}</Badge>
+                  <Badge variant="outline" className="font-mono text-[11px] bg-background/50 gap-1">
+                    <Cpu className="w-3 h-3" /> core {CORE_VERSION}
+                  </Badge>
+                </>
+              )}
             </div>
           </div>
         </header>
@@ -311,7 +315,7 @@ export const SettingsPage = () => {
               </div>
             </div>
 
-            {import.meta.env.DEV && (
+            {APP_CONFIG.enableUpdaterTestMode && (
               <div className="mt-4 p-3 rounded-2xl border border-dashed border-border/80 flex flex-wrap items-center gap-2">
                 <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground me-2">
                   Dev &amp; Offline Testing Tools

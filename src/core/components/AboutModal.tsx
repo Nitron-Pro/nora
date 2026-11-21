@@ -42,6 +42,7 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
             <h3 className="text-base font-bold text-foreground flex items-center gap-2">
               {APP_CONFIG.appName}
             </h3>
+            {APP_CONFIG.showVersionBadges !== false && (
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono font-semibold">
                 v{currentVersion}
@@ -50,6 +51,7 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps) => {
                 Core v{APP_CONFIG.coreVersion}
               </span>
             </div>
+            )}
           </div>
         </div>
 

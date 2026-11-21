@@ -67,7 +67,8 @@ export const HeaderActions = ({
               <div className="px-2.5 py-2 border-b border-border/60 mb-1">
                 <p className="text-xs font-semibold">{APP_CONFIG.appName}</p>
                 <p className="text-[10px] text-muted-foreground font-mono">
-                  {t("version")} {currentVersion} (Core: {APP_CONFIG.coreVersion})
+                  {t("version")} {currentVersion}
+                  {APP_CONFIG.showVersionBadges !== false && ` (Core: ${APP_CONFIG.coreVersion})`}
                 </p>
               </div>
 

@@ -85,6 +85,7 @@ export const CustomTitlebar = ({}: CustomTitlebarProps) => {
         <span className="text-xs font-semibold tracking-wide">
           {APP_CONFIG.appName}
         </span>
+        {APP_CONFIG.showVersionBadges !== false && (
         <div className="flex items-center gap-1.5 font-mono text-[10px]">
           <span className="text-muted-foreground bg-muted/80 px-1.5 py-0.5 rounded border border-border/50">
             v{currentVersion}
@@ -93,6 +94,7 @@ export const CustomTitlebar = ({}: CustomTitlebarProps) => {
             Core v{APP_CONFIG.coreVersion}
           </span>
         </div>
+        )}
       </div>
 
       {/* Window Controls (Minimize, Maximize/Restore, Close) */}

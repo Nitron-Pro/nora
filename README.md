@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/TailwindCSS-v3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
   <img src="https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows" />
-  <img src="https://img.shields.io/badge/Version-1.12.0-0F172A?style=for-the-badge" alt="Version 1.12.0" />
+  <img src="https://img.shields.io/badge/Version-1.12.1-0F172A?style=for-the-badge" alt="Version 1.12.1" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Independent-success?style=for-the-badge" alt="Offline-First" />
 </p>
 
@@ -138,8 +138,8 @@ npm run tauri build
 
 خروجی‌ها پس از کامپایل در مسیر زیر تولید می‌شوند:
 - `src-tauri/target/release/nora.exe` (فایل پرتابل)
-- `src-tauri/target/release/bundle/nsis/Nora_1.12.0_x64-setup.exe` (فایل نصبی ویزاردی)
-- `src-tauri/target/release/bundle/msi/Nora_1.12.0_x64_en-US.msi` (فایل نصبی سازمانی)
+- `src-tauri/target/release/bundle/nsis/Nora_1.12.1_x64-setup.exe` (فایل نصبی ویزاردی)
+- `src-tauri/target/release/bundle/msi/Nora_1.12.1_x64_en-US.msi` (فایل نصبی سازمانی)
 
 > ایجنت‌ها نباید `tauri build` را خودسرانه اجرا کنند مگر کاربر صریحاً دستور دهد.
 

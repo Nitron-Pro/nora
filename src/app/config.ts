@@ -37,20 +37,30 @@ export interface AppConfig {
   defaultTheme: "dark" | "midnight" | "light";
   enableTray: boolean;
   enableUpdater: boolean;
+  /** Show "vX" / "Core vX" badges (titlebar, header menu, About). Default true. */
+  showVersionBadges?: boolean;
+  /** Show the simulate-release / reset-version tools in Settings. Default false. */
+  enableUpdaterTestMode?: boolean;
   updaterEndpoint: string;
   about?: AppAboutInfo;
   menuItems: MenuItemLevel1[];
 }
 
+/** Demo sections of the base app. Child apps set these to false (or just delete the menu entries). */
+const SHOW_HARDWARE_MENU = true;
+const SHOW_TASKS_MENU = true;
+
 export const APP_CONFIG: AppConfig = {
   appName: "Nora Base",
   appId: "com.nora.base",
-  version: "1.12.0",
-  coreVersion: "1.12.0",
+  version: "1.12.1",
+  coreVersion: "1.12.1",
   defaultLanguage: "en",
   defaultTheme: "dark",
   enableTray: true,
   enableUpdater: true,
+  showVersionBadges: true,
+  enableUpdaterTestMode: import.meta.env.DEV,
   updaterEndpoint: "http://localhost:8080/updates/releases.json",
   about: {
     developer: "Nora Core Architecture Team",
@@ -66,7 +76,7 @@ export const APP_CONFIG: AppConfig = {
       icon: "LayoutDashboard",
       path: "/",
     },
-    {
+    ...(SHOW_HARDWARE_MENU ? [{
       id: "hardware",
       label: "Hardware & Devices",
       icon: "Cpu",
@@ -87,8 +97,8 @@ export const APP_CONFIG: AppConfig = {
           ],
         },
       ],
-    },
-    {
+    }] : []),
+    ...(SHOW_TASKS_MENU ? [{
       id: "tasks",
       label: "Tasks & Processes",
       icon: "Activity",
@@ -98,7 +108,7 @@ export const APP_CONFIG: AppConfig = {
         { id: "queue-tasks", label: "Queued Tasks", icon: "Clock", path: "/tasks/queue" },
         { id: "history-tasks", label: "History Archive", icon: "Archive", path: "/tasks/history" },
       ],
-    },
+    }] : []),
     // Dev-only manual test page for core IPC capabilities (vault, remote, transfers, snapshots...).
     ...(import.meta.env.DEV
       ? [{ id: "core-lab", label: "Core Lab", icon: "Server", path: "/lab" }]
